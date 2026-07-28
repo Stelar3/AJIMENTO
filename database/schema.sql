@@ -118,6 +118,16 @@ create table sauces (
   story jsonb, -- ex: {"fr": "...", "en": "...", "es": "..."} — multilingue dès le départ
   editorial_angle text, -- USAGE INTERNE UNIQUEMENT, jamais affiché dans l'app
 
+  -- Notation 4 critères (moyennes affichées) — ajouté en plus de l'analyse
+  -- d'origine car déjà validé dans la spec UX (écran Fiche produit) :
+  -- Heat / Flavor / Balance / Finish + une note globale.
+  -- Ce sont des MOYENNES recalculées à partir de user_collection ci-dessous.
+  heat_avg numeric(2,1) check (heat_avg between 0 and 5),
+  flavor_avg numeric(2,1) check (flavor_avg between 0 and 5),
+  balance_avg numeric(2,1) check (balance_avg between 0 and 5),
+  finish_avg numeric(2,1) check (finish_avg between 0 and 5),
+  score_avg numeric(2,1) check (score_avg between 0 and 5),
+
   -- Images
   image_bottle_url text,   -- fond neutre, ratio 2:3
   image_context_url text,  -- en situation, ratio libre
@@ -179,7 +189,11 @@ create table user_collection (
   user_id uuid not null references auth.users(id) on delete cascade,
   sauce_id uuid not null references sauces(id) on delete cascade,
   status collection_status not null default 'wishlist',
-  rating smallint check (rating between 1 and 5),
+  rating smallint check (rating between 1 and 5), -- note globale
+  heat_rating smallint check (heat_rating between 1 and 5),
+  flavor_rating smallint check (flavor_rating between 1 and 5),
+  balance_rating smallint check (balance_rating between 1 and 5),
+  finish_rating smallint check (finish_rating between 1 and 5),
   notes text,
   added_at timestamptz not null default now(),
   unique (user_id, sauce_id) -- un utilisateur ne peut pas dupliquer la même sauce
@@ -222,3 +236,14 @@ create policy "Piments visibles par tous" on pepper_types for select using (true
 
 alter table flavor_tags enable row level security;
 create policy "Tags visibles par tous" on flavor_tags for select using (true);
+
+-- Tables de liaison (piments et tags associés à chaque sauce) et codes-barres :
+-- lecture publique aussi, pour que l'app puisse tout afficher.
+alter table sauce_pepper_types enable row level security;
+create policy "Liens piments visibles par tous" on sauce_pepper_types for select using (true);
+
+alter table sauce_flavor_tags enable row level security;
+create policy "Liens tags visibles par tous" on sauce_flavor_tags for select using (true);
+
+alter table barcodes enable row level security;
+create policy "Codes-barres visibles par tous" on barcodes for select using (true);

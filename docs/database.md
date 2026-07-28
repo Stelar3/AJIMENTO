@@ -42,10 +42,21 @@ Supabase a été recommandé parce qu'il est gratuit pour démarrer, inclut la b
 3. Une fois le projet créé, va dans le menu **SQL Editor** (icône à gauche)
 4. Ouvre le fichier `database/schema.sql` de ce projet, copie tout son contenu, colle-le dans l'éditeur SQL de Supabase
 5. Clique **Run** — toutes les tables sont créées d'un coup
-6. Dans **Project Settings → API**, tu trouveras une **URL** et une **clé publique (anon key)** — c'est ce qui permettra plus tard à l'app de se connecter à cette base. Garde cette page ouverte ou note ces deux valeurs, on en aura besoin pour la prochaine étape (brancher l'app dessus).
+6. Fais la même chose avec `database/seed.sql` (copier-coller dans le SQL Editor, **Run**) — ça ajoute 4 vraies sauces (El Yucateco, Really Buokas, Doraz Ají Chombo, Mamita) vérifiées par recherche, pour remplacer les données inventées
+7. Dans **Project Settings → API**, tu trouveras une **Project URL** et une **clé "anon public"** — copie ces deux valeurs
+
+## Brancher l'app dessus
+
+1. Ouvre le fichier `config.js` à la racine du projet
+2. Colle l'URL dans `SUPABASE_URL` et la clé dans `SUPABASE_ANON_KEY`
+3. Enregistre, puis `git add . && git commit -m "Connexion Supabase" && git push`
+4. Ouvre `fiche-produit.html` (en ligne ou sur ton téléphone) — si tout est bon, elle affiche maintenant la vraie fiche "Habanero Rojo" venue de Supabase (regarde le bandeau en bas de la fiche : il dira "Donnée réelle" au lieu de "Fiche de démonstration")
+
+Tant que `config.js` n'est pas rempli, ou si la connexion échoue pour une raison quelconque, l'app continue d'afficher les données de démonstration — rien ne casse.
 
 ## Ce qui reste à faire ensuite
 
-- Brancher l'app (les écrans qu'on construit) sur cette base, pour remplacer les données de démonstration par de vraies données
-- Commencer à peupler la base avec les premières sauces (les photos du rayon Panama analysées dans le document d'origine sont un bon point de départ concret)
+- Ajouter un vrai système de navigation pour parcourir toutes les sauces (pour l'instant, la fiche produit n'affiche qu'une seule sauce fixe, "Habanero Rojo")
+- Continuer à peupler la base avec plus de sauces (les 25 références du rayon Panama analysées dans le document d'origine sont un bon point de départ concret)
 - Mettre en place le système de modération des contributions communautaires (mentionné comme risque UX prioritaire dans l'analyse)
+- Recalculer automatiquement `heat_avg` / `flavor_avg` / `balance_avg` / `finish_avg` / `score_avg` à partir des notes individuelles dans `user_collection`, au fur et à mesure que des utilisateurs notent des sauces (pour l'instant, ces valeurs sont saisies à la main dans `seed.sql`)

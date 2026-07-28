@@ -2,12 +2,14 @@
 // d'être "installable" et de fonctionner même sans connexion.
 // Pour l'instant, il se contente de mettre en cache les fichiers de base.
 
-const CACHE_NAME = "ajimento-v3";
+const CACHE_NAME = "ajimento-v4";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./fiche-produit.html",
   "./styles.css",
+  "./config.js",
+  "./sauces.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"

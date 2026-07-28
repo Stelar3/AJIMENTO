@@ -232,7 +232,7 @@
 
     <div class="topbar">
       <a class="back-link" href="index.html">← Accueil</a>
-      <span class="tier-badge">Gold</span>
+      <span class="tier-badge" id="tier-badge">Gold</span>
     </div>
 
     <div class="bottle-wrap">
@@ -252,8 +252,8 @@
     </div>
 
     <div class="name-block">
-      <h1>Habanero Rojo</h1>
-      <div class="brand-line">EL YUCATECO · 🇲🇽 MEXIQUE</div>
+      <h1 id="sauce-name">Habanero Rojo</h1>
+      <div class="brand-line" id="brand-line">EL YUCATECO · 🇲🇽 MEXIQUE</div>
     </div>
 
     <div class="gauge-section">
@@ -280,16 +280,16 @@
   <div class="body-content">
 
     <div class="section-label">Notation</div>
-    <div class="ratings-row">
-      <div class="rating-pill"><span class="label">Heat</span><span class="val">4.3</span></div>
-      <div class="rating-pill"><span class="label">Flavor</span><span class="val">3.8</span></div>
-      <div class="rating-pill"><span class="label">Balance</span><span class="val">4.1</span></div>
-      <div class="rating-pill"><span class="label">Finish</span><span class="val">3.5</span></div>
-      <div class="score-pill"><span class="val">4.2</span><span class="label">/ 5</span></div>
+    <div class="ratings-row" id="ratings-row">
+      <div class="rating-pill"><span class="label">Heat</span><span class="val" id="rating-heat">4.3</span></div>
+      <div class="rating-pill"><span class="label">Flavor</span><span class="val" id="rating-flavor">3.8</span></div>
+      <div class="rating-pill"><span class="label">Balance</span><span class="val" id="rating-balance">4.1</span></div>
+      <div class="rating-pill"><span class="label">Finish</span><span class="val" id="rating-finish">3.5</span></div>
+      <div class="score-pill"><span class="val" id="rating-score">4.2</span><span class="label">/ 5</span></div>
     </div>
 
     <div class="section-label">Profil aromatique</div>
-    <div class="tags-row">
+    <div class="tags-row" id="tags-row">
       <span class="tag-chip">Fruité</span>
       <span class="tag-chip">Fumé</span>
       <span class="tag-chip">Vinaigré</span>
@@ -297,7 +297,7 @@
 
     <div class="story">
       <h2>L'histoire</h2>
-      <p>
+      <p id="story-text">
         L'une des sauces les plus vendues au monde. Et pourtant, la plupart de ceux qui l'utilisent
         tous les jours ne savent pas vraiment ce qu'ils ont dans les mains : un habanero rouge,
         de l'ail, de la tomate — et une recette mexicaine documentée depuis 1968.
@@ -305,33 +305,109 @@
       </p>
     </div>
 
-    <div class="disclaimer">Fiche de démonstration — reprend une donnée du kit de contenu Instagram existant</div>
+    <div class="disclaimer" id="disclaimer">Fiche de démonstration — reprend une donnée du kit de contenu Instagram existant</div>
   </div>
 
-  <script>
-    // --- Animation de la jauge de Scoville ---
-    // Même logique que le kit Instagram : le piquant est réparti en 5 paliers
+  <script src="config.js"></script>
+  <script type="module">
+    import { fetchSauceByShortName } from './sauces.js';
+
+    // --- Les paliers de piquant, même logique que le kit Instagram ---
     // (Doux / Relevé / Fort / Intense / Extrême), chacun avec sa propre plage SHU,
     // pour que la barre reste lisible même si les valeurs varient énormément.
     const LEVELS = ["Doux", "Relevé", "Fort", "Intense", "Extrême"];
     const RANGES = [[0, 1e4], [1e4, 1e5], [1e5, 5e5], [5e5, 1e6], [1e6, 3e6]];
     const BASES = [0, 20, 40, 60, 80];
 
+    function levelIndexFor(shu) {
+      for (let i = 0; i < RANGES.length; i++) {
+        if (shu >= RANGES[i][0] && shu <= RANGES[i][1]) return i;
+      }
+      return RANGES.length - 1;
+    }
     function gaugePercent(shu, levelIdx) {
       const [min, max] = RANGES[levelIdx];
       const withinLevel = Math.min(1, Math.max(0, (shu - min) / (max - min)));
       return BASES[levelIdx] + withinLevel * 20;
     }
 
-    const shu = 11400;
-    const levelIdx = 1; // "Relevé"
-    const percent = gaugePercent(shu, levelIdx);
+    // --- Donnée de secours (celle du tout premier brouillon), utilisée
+    // tant que Supabase n'est pas configuré ou si la requête échoue ---
+    const demoData = {
+      nameFull: 'Habanero Rojo',
+      brandName: 'El Yucateco',
+      originCountry: 'MX',
+      originFlag: '🇲🇽',
+      shu: 11400,
+      shuSource: 'estimée',
+      heatLevelDisplay: 4,
+      ratings: { heat: 4.3, flavor: 3.8, balance: 4.1, finish: 3.5, score: 4.2 },
+      flavorTags: ['Fruité', 'Fumé', 'Vinaigré'],
+      story: "L'une des sauces les plus vendues au monde. Et pourtant, la plupart de ceux qui l'utilisent tous les jours ne savent pas vraiment ce qu'ils ont dans les mains : un habanero rouge, de l'ail, de la tomate — et une recette mexicaine documentée depuis 1968. Chaque goutte raconte une histoire. C'est celle-ci.",
+      tier: 'gold',
+      isDemo: true,
+    };
 
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('gauge-fill').style.width = percent + '%';
-      }, 150);
-    });
+    const FLAGS = { MX: '🇲🇽', PA: '🇵🇦', FR: '🇫🇷', US: '🇺🇸', CO: '🇨🇴', ES: '🇪🇸' };
+
+    function renderSauce(data) {
+      document.getElementById('sauce-name').textContent = data.nameFull;
+      document.getElementById('brand-line').textContent =
+        `${data.brandName.toUpperCase()} · ${FLAGS[data.originCountry] || ''} ${data.originCountry || ''}`;
+      document.getElementById('tier-badge').textContent =
+        data.tier ? data.tier.charAt(0).toUpperCase() + data.tier.slice(1) : 'Bronze';
+
+      // Jauge
+      if (data.shu != null) {
+        const levelIdx = levelIndexFor(data.shu);
+        const percent = gaugePercent(data.shu, levelIdx);
+        document.getElementById('shu-value').textContent =
+          `${data.shu.toLocaleString('fr-FR')} SHU (${data.shuSource})`;
+        document.querySelectorAll('.gauge-levels span').forEach((el, i) => {
+          el.classList.toggle('active', i === levelIdx);
+          el.style.color = i === levelIdx ? '#E8A838' : '';
+        });
+        document.getElementById('heat-idx').textContent = data.heatLevelDisplay ?? Math.min(10, (levelIdx + 1) * 2);
+        setTimeout(() => { document.getElementById('gauge-fill').style.width = percent + '%'; }, 150);
+      } else {
+        document.getElementById('shu-value').textContent = 'Pas encore de donnée';
+        document.getElementById('heat-idx').textContent = '?';
+      }
+
+      // Notation 4 critères
+      const r = data.ratings || {};
+      if (r.score != null) {
+        document.getElementById('rating-heat').textContent = r.heat ?? '—';
+        document.getElementById('rating-flavor').textContent = r.flavor ?? '—';
+        document.getElementById('rating-balance').textContent = r.balance ?? '—';
+        document.getElementById('rating-finish').textContent = r.finish ?? '—';
+        document.getElementById('rating-score').textContent = r.score;
+        document.getElementById('ratings-row').style.display = '';
+      } else {
+        document.getElementById('ratings-row').style.display = 'none';
+      }
+
+      // Tags aromatiques
+      const tagsRow = document.getElementById('tags-row');
+      if (data.flavorTags && data.flavorTags.length) {
+        tagsRow.innerHTML = data.flavorTags.map(t => `<span class="tag-chip">${t}</span>`).join('');
+      }
+
+      // Histoire
+      if (data.story) {
+        document.getElementById('story-text').textContent = data.story;
+      }
+
+      // Bandeau du bas
+      document.getElementById('disclaimer').textContent = data.isDemo
+        ? 'Fiche de démonstration — reprend une donnée du kit de contenu Instagram existant'
+        : 'Donnée réelle — base Ajimento (Supabase)';
+    }
+
+    (async () => {
+      const liveData = await fetchSauceByShortName('Habanero Rojo');
+      renderSauce(liveData || demoData);
+    })();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js').catch(() => {});

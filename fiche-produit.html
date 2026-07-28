@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ajimento — Fiche produit</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#C0392B" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --brick: #C0392B;
+      --brick-soft: #E5B3AA;
+      --cream: #FAF9F5;
+      --ink: #2A2422;
+      --ink-soft: rgba(42, 36, 34, 0.6);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      padding-bottom: 60px;
+    }
+
+    /* ---- En-tête ---- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+    }
+    .back-link {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+    .tier-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #D4AF37;
+      color: #2A2422;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* ---- Hero ---- */
+    .hero {
+      text-align: center;
+      padding: 8px 24px 24px;
+    }
+    .bottle {
+      font-size: 4.5rem;
+      margin-bottom: 4px;
+    }
+    .origin {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--brick);
+      margin-bottom: 4px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 2.4rem;
+      margin: 0 0 4px 0;
+    }
+    .producer {
+      font-size: 0.85rem;
+      opacity: 0.65;
+      font-style: italic;
+    }
+
+    /* ---- Jauge de Scoville ---- */
+    .gauge-section {
+      padding: 12px 24px 8px;
+      text-align: center;
+    }
+    .gauge-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-bottom: 8px;
+    }
+    .gauge-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: var(--brick);
+    }
+    .gauge-source {
+      font-size: 0.65rem;
+      opacity: 0.5;
+    }
+
+    /* ---- Notation 4 critères ---- */
+    .ratings {
+      padding: 24px 24px 8px;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+    .rating-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .rating-label {
+      width: 90px;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    .rating-track {
+      flex: 1;
+      height: 6px;
+      background: var(--brick-soft);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .rating-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--brick);
+      border-radius: 999px;
+      transition: width 1s ease;
+    }
+    .rating-score {
+      width: 28px;
+      text-align: right;
+      font-size: 0.8rem;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    /* ---- Histoire ---- */
+    .story {
+      padding: 20px 24px 0;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .story h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      margin: 0 0 8px 0;
+    }
+    .story p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .disclaimer {
+      text-align: center;
+      font-size: 0.65rem;
+      opacity: 0.4;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Accueil</a>
+    <span class="tier-badge">Gold</span>
+  </div>
+
+  <div class="hero">
+    <div class="bottle">🍾</div>
+    <div class="origin">Pérou</div>
+    <h1>Llama de Fuego</h1>
+    <div class="producer">Sauce artisanale — exemple de démonstration</div>
+  </div>
+
+  <div class="gauge-section">
+    <div class="gauge-label">Échelle de Scoville</div>
+
+    <!-- Jauge en arc de cercle, animée au chargement -->
+    <svg id="gauge" width="220" height="130" viewBox="0 0 220 130">
+      <path d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="#E5B3AA" stroke-width="14" stroke-linecap="round" />
+      <path id="gauge-fill" d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="#C0392B" stroke-width="14" stroke-linecap="round" />
+    </svg>
+
+    <div class="gauge-value">15 000 SHU</div>
+    <div class="gauge-source">valeur estimée · piquant modéré à fort</div>
+  </div>
+
+  <div class="ratings">
+    <div class="rating-row">
+      <div class="rating-label">Chaleur</div>
+      <div class="rating-track"><div class="rating-fill" data-score="3"></div></div>
+      <div class="rating-score">3/5</div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-label">Saveur</div>
+      <div class="rating-track"><div class="rating-fill" data-score="4"></div></div>
+      <div class="rating-score">4/5</div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-label">Équilibre</div>
+      <div class="rating-track"><div class="rating-fill" data-score="4"></div></div>
+      <div class="rating-score">4/5</div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-label">Finale</div>
+      <div class="rating-track"><div class="rating-fill" data-score="3"></div></div>
+      <div class="rating-score">3/5</div>
+    </div>
+  </div>
+
+  <div class="story">
+    <h2>L'histoire</h2>
+    <p>
+      Ceci est une fiche de démonstration — le texte, la sauce et les notes sont fictifs,
+      juste pour montrer à quoi ressemblera une vraie fiche une fois les données réelles branchées.
+      "Every drop has a story" : chaque sauce aura ici son origine, son producteur, et ce qui la rend unique.
+    </p>
+  </div>
+
+  <div class="disclaimer">Fiche de démonstration — données fictives</div>
+
+  <script>
+    // --- Animation de la jauge de Scoville ---
+    // On calcule où se place la valeur sur une échelle "logarithmique"
+    // (parce que le piquant va de 0 à plus de 3 millions, une échelle
+    // normale rendrait tout illisible).
+    const shuValue = 15000;
+    const maxShu = 3200000; // Pepper X, le piment le plus fort connu
+    const percent = Math.log10(shuValue + 1) / Math.log10(maxShu + 1);
+
+    const gaugeFill = document.getElementById('gauge-fill');
+    const arcLength = gaugeFill.getTotalLength();
+
+    // On cache la barre au départ...
+    gaugeFill.style.strokeDasharray = arcLength;
+    gaugeFill.style.strokeDashoffset = arcLength;
+
+    // ...puis on l'anime pour qu'elle se remplisse au chargement de la page.
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        gaugeFill.style.transition = 'stroke-dashoffset 1.2s ease';
+        gaugeFill.style.strokeDashoffset = arcLength * (1 - percent);
+      }, 150);
+
+      // Animation des barres de notation (Chaleur/Saveur/Équilibre/Finale)
+      document.querySelectorAll('.rating-fill').forEach((bar, i) => {
+        const score = parseInt(bar.dataset.score, 10);
+        setTimeout(() => {
+          bar.style.width = (score / 5 * 100) + '%';
+        }, 300 + i * 150);
+      });
+    });
+
+    // Service worker (même mécanique que sur la page d'accueil)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

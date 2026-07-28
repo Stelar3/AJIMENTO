@@ -1,0 +1,102 @@
+/*
+  Feuille de style partagée — Ajimento
+  Basée sur la charte réelle du kit Instagram (fond sombre et atmosphérique),
+  pas la version claire du tout premier brouillon.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Couleurs de marque */
+  --red: #C0392B;
+  --fire: #D4603A;
+  --gold: #B8963E;
+
+  /* Fonds et surfaces */
+  --bg: #0A0909;
+  --card: #141212;
+  --card2: #1C1919;
+  --border: #2A2424;
+
+  /* Textes */
+  --text: #F2EDE8;
+  --muted: #7A6F6A;
+  --dim: #2E2828;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+}
+
+.serif { font-family: 'Cormorant Garamond', serif; }
+.mono { font-family: 'DM Mono', monospace; }
+
+a { color: inherit; }
+
+/* ---- Animations partagées ---- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ingredientDrift {
+  0%, 100% { transform: translate(0, 0) rotate(var(--r)); }
+  50% { transform: translate(3px, -5px) rotate(calc(var(--r) + 4deg)); }
+}
+.fade-in { animation: fadeIn 0.5s ease forwards; }
+.ingredient {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+  animation: ingredientDrift 7s ease-in-out infinite;
+}
+
+/* ---- Fond atmosphérique réutilisable ---- */
+.atmo-bg {
+  position: relative;
+  overflow: hidden;
+}
+.atmo-bg .atmo-layer-1 {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 25% 30%, var(--atmo-1, #2D0800) 0%, var(--atmo-2, #0A0404) 55%, #030303 100%);
+}
+.atmo-bg .atmo-layer-2 {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 78% 72%, var(--atmo-accent, #C0392B)18 0%, transparent 65%);
+}
+
+/* ---- Jauge Scoville (barre à dégradé) ---- */
+.gauge-track {
+  height: 6px;
+  background: rgba(0,0,0,.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.gauge-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #F5D76E 0%, #E8A838 25%, #D4603A 55%, #C0392B 78%, #7B1A1A 100%);
+  background-size: 500% 100%;
+  transition: width 1.2s cubic-bezier(.34,1.2,.64,1);
+}
+.gauge-levels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.gauge-levels span {
+  font-family: 'DM Mono', monospace;
+  font-size: 7.5px;
+  color: rgba(255,255,255,.25);
+  letter-spacing: .02em;
+}
+.gauge-levels span.active {
+  font-weight: 700;
+}

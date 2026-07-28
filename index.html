@@ -7,7 +7,7 @@
 
   <!-- PWA : ce qui permet "d'installer" l'app sur l'écran d'accueil -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#C0392B" />
+  <meta name="theme-color" content="#0A0909" />
 
   <!-- Réglages spécifiques iPhone pour que l'ajout à l'écran d'accueil ressemble à une vraie app -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -15,84 +15,96 @@
   <meta name="apple-mobile-web-app-title" content="Ajimento" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 
-  <!-- Polices de la charte de marque -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 
   <style>
-    :root {
-      --brick: #C0392B;
-      --cream: #FAF9F5;
-      --ink: #2A2422;
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
       min-height: 100vh;
-      background: var(--cream);
-      color: var(--ink);
-      font-family: 'DM Mono', monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Fond atmosphérique : dégradés + piments qui flottent doucement */
+    .home-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 25% 25%, #3D0800 0%, #0A0404 55%, #030303 100%),
+        radial-gradient(ellipse at 78% 75%, #C0392B22 0%, transparent 65%);
+      z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      font-family: 'DM Mono', monospace;
     }
     h1 {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 700;
-      font-size: 3.2rem;
-      color: var(--brick);
-      margin: 0 0 8px 0;
-      letter-spacing: 0.02em;
+      font-size: 3.4rem;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 10px;
     }
     p.tagline {
+      font-family: 'Cormorant Garamond', serif;
       font-style: italic;
-      font-size: 1rem;
-      color: var(--ink);
-      opacity: 0.75;
-      margin: 0 0 40px 0;
-    }
-    .badge {
-      display: inline-block;
-      border: 1px solid var(--brick);
-      color: var(--brick);
-      border-radius: 999px;
-      padding: 6px 16px;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 24px;
-    }
-    .flame {
-      font-size: 3rem;
-      margin-bottom: 12px;
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-bottom: 44px;
     }
     .demo-link {
       display: inline-block;
-      margin-top: 8px;
-      color: var(--brick);
+      color: var(--fire);
+      font-family: 'DM Mono', monospace;
       font-size: 0.8rem;
-      text-decoration: underline;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
     }
+    .demo-link:hover { border-bottom-color: var(--fire); }
+
     footer {
       position: fixed;
       bottom: 20px;
-      font-size: 0.7rem;
-      opacity: 0.5;
+      z-index: 1;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
     }
   </style>
 </head>
 <body>
-  <div class="flame">🌶️</div>
-  <div class="badge">Premier test</div>
-  <h1>Ajimento</h1>
-  <p class="tagline">Every drop has a story</p>
-  <a class="demo-link" href="fiche-produit.html">Voir un exemple de fiche produit →</a>
+  <div class="home-bg">
+    <div class="ingredient" style="left:8%;top:12%;font-size:90px;opacity:.12;--r:-20deg;transform:rotate(-20deg);animation-delay:0s;">🌶️</div>
+    <div class="ingredient" style="left:74%;top:15%;font-size:70px;opacity:.1;--r:15deg;transform:rotate(15deg);animation-delay:1.5s;">🌶️</div>
+    <div class="ingredient" style="left:70%;top:68%;font-size:80px;opacity:.1;--r:-10deg;transform:rotate(-10deg);animation-delay:3s;">🍾</div>
+    <div class="ingredient" style="left:6%;top:70%;font-size:60px;opacity:.09;--r:20deg;transform:rotate(20deg);animation-delay:2s;">🌶️</div>
+  </div>
 
-  <footer>v0.0.2 — construit le 28 juillet 2026</footer>
+  <div class="content fade-in">
+    <div class="badge">Premier test</div>
+    <h1>Ajimento</h1>
+    <p class="tagline">Every drop has a story</p>
+    <a class="demo-link" href="fiche-produit.html">Voir un exemple de fiche produit →</a>
+  </div>
+
+  <footer>V0.0.3 · CONSTRUIT LE 28 JUILLET 2026</footer>
 
   <script>
     // Ceci enregistre le "service worker", la pièce technique qui permet

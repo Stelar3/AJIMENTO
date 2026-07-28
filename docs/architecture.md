@@ -27,16 +27,22 @@ Dès qu'une première version très simple existera (un écran d'accueil, par ex
 
 Pas de compte développeur à payer, pas d'attente de validation Apple/Google pour tester.
 
-## La base de données (synthèse de ce qui a déjà été décidé ailleurs)
+## L'identité visuelle réelle : sombre et atmosphérique
 
-Une analyse plus poussée existe déjà dans un autre espace de travail de Brice. Voici la synthèse à garder en tête :
+Le tout premier écran construit utilisait un fond clair (crème) par erreur, faute d'avoir le détail complet de la charte sous la main. La vraie charte, retrouvée dans le kit de contenu Instagram (`content/instagram-templates.jsx`), est **sombre et atmosphérique** : fond quasi noir (`#0A0909`), dégradés radiaux colorés, ingrédients qui flottent doucement en arrière-plan, trois polices (Cormorant Garamond pour les titres, DM Mono pour les données, Outfit pour le texte courant), et une palette élargie (Rouge `#C0392B`, Feu `#D4603A`, Or `#B8963E`). Les écrans ont été reconstruits sur cette base — voir `index.html` et `fiche-produit.html`.
+
+## La base de données
+
+Analyse complète disponible dans `docs/SCOVL_analyse_multiprismes_BDD.md` (le document de référence original). Résumé de ce qui structure le schéma (`database/schema.sql`) :
 
 - **Trois paliers de qualité pour chaque fiche sauce** : Bronze (basique), Silver (intermédiaire), Gold (complet et vérifié). Objectif : environ 150 fiches Gold au lancement plutôt qu'un catalogue immense mais pauvre en contenu.
-- **Une vingtaine de tags de saveur** (une liste fermée, pas un champ libre, pour garder le catalogue cohérent)
-- **Trois façons de connaître le niveau de piquant (Scoville)** d'une sauce : valeur certifiée en laboratoire, valeur estimée, valeur donnée par la communauté — chacune affichée différemment pour ne pas induire en erreur
-- **Multilingue dès le départ** : français, anglais, espagnol. C'est une décision qui doit être prise dans la structure de la base de données dès le début — l'ajouter après coup serait beaucoup plus difficile.
+- **Une vingtaine de tags de saveur** (une liste fermée, pas un champ libre, pour garder le catalogue cohérent) — déjà créés dans le schéma.
+- **Trois façons de connaître le niveau de piquant (Scoville)** d'une sauce : valeur certifiée en laboratoire, valeur estimée, valeur donnée par la communauté — chacune affichée différemment pour ne pas induire en erreur. L'app n'affiche jamais que la valeur déjà calculée sur 10 (`heat_level_display`).
+- **Multilingue dès le départ** : français, anglais, espagnol, natif dans la structure (champ `story` en JSON par langue).
+
+**Hébergement choisi : Supabase** (gratuit pour démarrer, base de données + comptes utilisateurs inclus). Détail de la mise en place dans `docs/database.md`.
 
 ## Ce qu'il reste à décider
 
-- Où et comment sera hébergée l'application et sa base de données (plusieurs options simples existent, à voir ensemble le moment venu)
+- Brancher l'app sur la vraie base de données Supabase (actuellement, la fiche produit affiche des données de démonstration codées en dur)
 - Le détail technique du scan de bouteille (fonctionnalité plus avancée, pas nécessaire pour une toute première version)

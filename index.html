@@ -23,64 +23,117 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       text-align: center;
-      padding: 24px;
+      padding: 48px 24px 24px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
     /* Fond atmosphérique : dégradés + piments qui flottent doucement */
     .home-bg {
-      position: absolute;
+      position: fixed;
       inset: 0;
       background:
         radial-gradient(ellipse at 25% 25%, #3D0800 0%, #0A0404 55%, #030303 100%),
         radial-gradient(ellipse at 78% 75%, #C0392B22 0%, transparent 65%);
       z-index: 0;
     }
-    .content { position: relative; z-index: 1; }
+    .content { position: relative; z-index: 1; width: 100%; max-width: 380px; }
 
-    .badge {
-      display: inline-block;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      border-radius: 999px;
-      padding: 6px 16px;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 28px;
-      font-family: 'DM Mono', monospace;
-    }
     h1 {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 700;
-      font-size: 3.4rem;
-      letter-spacing: 0.06em;
+      font-size: 3rem;
+      letter-spacing: 0.04em;
       color: var(--text);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     p.tagline {
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
       font-size: 1.05rem;
       color: var(--muted);
-      margin-bottom: 44px;
+      margin-bottom: 20px;
     }
-    .demo-link {
-      display: inline-block;
+
+    /* ---- Stats réelles (nombre de sauces / pays cataloguées) ---- */
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-bottom: 32px;
+      min-height: 40px;
+    }
+    .stat { display: flex; flex-direction: column; align-items: center; }
+    .stat .n {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 1.6rem;
       color: var(--fire);
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.85rem;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
     }
-    .demo-link:hover { border-bottom-color: var(--fire); }
+    .stat .l {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* ---- Sauce du moment (tirée de la vraie base) ---- */
+    .featured-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .featured-card {
+      display: block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      text-decoration: none;
+      color: var(--text);
+      text-align: left;
+      margin-bottom: 28px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .featured-card:hover { transform: translateY(-2px); border-color: var(--fire); }
+    .featured-card .fname {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      margin-bottom: 2px;
+    }
+    .featured-card .fbrand {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .featured-card .fmeta {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      color: var(--fire);
+    }
+
+    .cta-primary {
+      display: inline-block;
+      background: linear-gradient(120deg, var(--fire), var(--red));
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-decoration: none;
+      padding: 13px 32px;
+      border-radius: 999px;
+    }
 
     footer {
-      position: fixed;
-      bottom: 20px;
+      position: relative;
       z-index: 1;
+      margin-top: 28px;
       font-family: 'DM Mono', monospace;
       font-size: 0.65rem;
       color: var(--dim);
@@ -97,13 +150,24 @@
   </div>
 
   <div class="content fade-in">
-    <div class="badge">Premier test</div>
     <h1>Ajimento</h1>
     <p class="tagline">Every drop has a story</p>
-    <a class="demo-link" href="explorer.html">Découvrir le catalogue →</a>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div id="featured-block" style="display:none;">
+      <div class="featured-label">Sauce du moment</div>
+      <a class="featured-card" id="featured-card" href="explorer.html">
+        <div class="fname" id="featured-name"></div>
+        <div class="fbrand" id="featured-brand"></div>
+        <div class="fmeta" id="featured-meta"></div>
+      </a>
+    </div>
+
+    <a class="cta-primary" href="explorer.html">Explorer le catalogue</a>
   </div>
 
-  <footer>V0.0.3 · CONSTRUIT LE 28 JUILLET 2026</footer>
+  <footer>V0.0.4 · CONSTRUIT LE 29 JUILLET 2026</footer>
 
   <nav class="bottom-nav">
     <a href="index.html" class="active"><span class="icon">🏠</span>Accueil</a>
@@ -112,7 +176,51 @@
     <a href="profil.html"><span class="icon">👤</span>Profil</a>
   </nav>
 
-  <script>
+  <script src="config.js"></script>
+  <script type="module">
+    import { fetchAllSauces } from './sauces.js';
+
+    const FLAGS = { MX: '🇲🇽', PA: '🇵🇦', FR: '🇫🇷', US: '🇺🇸', CO: '🇨🇴', ES: '🇪🇸', BZ: '🇧🇿' };
+
+    function fmtSHU(shu) {
+      if (shu == null) return 'Pas encore de donnée';
+      if (shu >= 1e6) return (shu / 1e6).toFixed(1) + 'M SHU';
+      if (shu >= 1e3) return Math.round(shu / 1e3) + 'k SHU';
+      return shu + ' SHU';
+    }
+
+    (async () => {
+      const sauces = await fetchAllSauces();
+      const statsRow = document.getElementById('stats-row');
+
+      if (!sauces.length) {
+        // Pas encore de données réelles : on garde une accroche simple, sans faux chiffres
+        statsRow.innerHTML = `
+          <div class="stat"><span class="n">—</span><span class="l">sauces</span></div>
+          <div class="stat"><span class="n">—</span><span class="l">pays</span></div>
+        `;
+        return;
+      }
+
+      const countries = new Set(sauces.map(s => s.originCountry).filter(Boolean));
+      statsRow.innerHTML = `
+        <div class="stat"><span class="n">${sauces.length}</span><span class="l">sauces</span></div>
+        <div class="stat"><span class="n">${countries.size}</span><span class="l">pays</span></div>
+      `;
+
+      // Sauce mise en avant : priorité aux fiches Gold, sinon la plus récente
+      const featured = sauces.find(s => s.tier === 'gold') || sauces[0];
+      if (featured) {
+        document.getElementById('featured-name').textContent = featured.nameFull;
+        document.getElementById('featured-brand').textContent =
+          `${featured.brandName} · ${FLAGS[featured.originCountry] || ''}`;
+        document.getElementById('featured-meta').textContent = fmtSHU(featured.shu);
+        document.getElementById('featured-card').href =
+          `fiche-produit.html?sauce=${encodeURIComponent(featured.nameShort)}`;
+        document.getElementById('featured-block').style.display = '';
+      }
+    })();
+
     // Ceci enregistre le "service worker", la pièce technique qui permet
     // à l'app de fonctionner comme une vraie application une fois installée.
     if ('serviceWorker' in navigator) {

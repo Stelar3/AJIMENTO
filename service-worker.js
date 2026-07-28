@@ -2,7 +2,7 @@
 // d'être "installable" et de fonctionner même sans connexion.
 // Pour l'instant, il se contente de mettre en cache les fichiers de base.
 
-const CACHE_NAME = "ajimento-v6";
+const CACHE_NAME = "ajimento-v7";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",

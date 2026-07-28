@@ -42,9 +42,10 @@
       text-decoration: none;
     }
     .tier-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
       background: rgba(184, 150, 62, 0.18);
       border: 1px solid rgba(184, 150, 62, 0.4);
@@ -60,6 +61,13 @@
       padding: 12px 0 8px;
       position: relative;
       z-index: 2;
+    }
+    .bottle-wrap img {
+      width: 100px;
+      max-height: 210px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 30px rgba(0,0,0,.5));
+      border-radius: 10px;
     }
 
     /* ---- Nom / marque ---- */
@@ -93,14 +101,17 @@
       margin-bottom: 6px;
     }
     .gauge-top-row .label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,.35);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
     }
     .gauge-top-row .value {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-variant-numeric: tabular-nums;
       color: var(--fire);
       font-weight: 500;
     }
@@ -148,9 +159,10 @@
       min-width: 70px;
     }
     .rating-pill .label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.06em;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.65rem;
+      letter-spacing: 0.03em;
       color: var(--muted);
       text-transform: uppercase;
     }
@@ -176,13 +188,14 @@
       font-size: 1.5rem;
       color: var(--gold);
     }
-    .score-pill .label { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+    .score-pill .label { font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 0.65rem; color: var(--muted); }
 
     /* ---- Tags aromatiques ---- */
     .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 10px;
@@ -204,6 +217,26 @@
       border-radius: 999px;
     }
 
+    /* ---- Types de piment ---- */
+    .pepper-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .pepper-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+
     /* ---- Histoire ---- */
     .story h2 {
       font-family: 'Cormorant Garamond', serif;
@@ -215,6 +248,49 @@
       font-size: 0.9rem;
       line-height: 1.7;
       color: rgba(242,237,232,.7);
+    }
+
+    /* ---- Avis / interaction ---- */
+    .avis-section {
+      margin-top: 32px;
+      padding: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-align: center;
+    }
+    .avis-section p {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .cta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .cta-btn {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      text-decoration: none;
+      padding: 11px 20px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cta-btn.primary {
+      background: linear-gradient(120deg, var(--fire), var(--red));
+      color: #fff;
+    }
+    .cta-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
     }
 
     .disclaimer {
@@ -240,8 +316,10 @@
     </div>
 
     <div class="bottle-wrap">
-      <!-- Bouteille en SVG, dans les couleurs de la sauce -->
-      <svg width="90" height="200" viewBox="0 0 70 160" fill="none" style="filter: drop-shadow(0 12px 30px #E8521A55);">
+      <!-- Photo réelle si la sauce en a une en base (image_bottle_url) -->
+      <img id="bottle-photo" alt="" style="display:none;" />
+      <!-- Repli : bouteille générique en SVG, dans les couleurs de la sauce -->
+      <svg id="bottle-svg" width="90" height="200" viewBox="0 0 70 160" fill="none" style="filter: drop-shadow(0 12px 30px #E8521A55);">
         <rect x="26" y="1" width="18" height="16" rx="5" fill="#E8521A" opacity=".92" />
         <path d="M23 17 L19 32 L51 32 L47 17 Z" fill="#8B0000" opacity=".95" />
         <rect x="17" y="31" width="5" height="4" rx="1" fill="#E8521A" opacity=".5" />
@@ -299,6 +377,13 @@
       <span class="tag-chip">Vinaigré</span>
     </div>
 
+    <div id="pepper-section">
+      <div class="section-label">Piment(s)</div>
+      <div class="pepper-row" id="pepper-row">
+        <span class="pepper-chip">🌶️ Habanero</span>
+      </div>
+    </div>
+
     <div class="story">
       <h2>L'histoire</h2>
       <p id="story-text">
@@ -307,6 +392,14 @@
         de l'ail, de la tomate — et une recette mexicaine documentée depuis 1968.
         Chaque goutte raconte une histoire. C'est celle-ci.
       </p>
+    </div>
+
+    <div class="avis-section">
+      <p>Les avis et notes détaillées arrivent avec les comptes Ajimento. En attendant, dis-nous si tu l'as déjà goûtée.</p>
+      <div class="cta-row">
+        <a class="cta-btn primary" href="profil.html">🗄️ Ajouter à ma Cave</a>
+        <a class="cta-btn secondary" href="profil.html">⭐ Noter cette sauce</a>
+      </div>
     </div>
 
     <div class="disclaimer" id="disclaimer">Fiche de démonstration — reprend une donnée du kit de contenu Instagram existant</div>
@@ -347,6 +440,8 @@
       heatLevelDisplay: 4,
       ratings: { heat: 4.3, flavor: 3.8, balance: 4.1, finish: 3.5, score: 4.2 },
       flavorTags: ['Fruité', 'Fumé', 'Vinaigré'],
+      peppers: ['Habanero'],
+      imageBottleUrl: null,
       story: "L'une des sauces les plus vendues au monde. Et pourtant, la plupart de ceux qui l'utilisent tous les jours ne savent pas vraiment ce qu'ils ont dans les mains : un habanero rouge, de l'ail, de la tomate — et une recette mexicaine documentée depuis 1968. Chaque goutte raconte une histoire. C'est celle-ci.",
       tier: 'gold',
       isDemo: true,
@@ -397,6 +492,29 @@
       const tagsRow = document.getElementById('tags-row');
       if (data.flavorTags && data.flavorTags.length) {
         tagsRow.innerHTML = data.flavorTags.map(t => `<span class="tag-chip">${t}</span>`).join('');
+      }
+
+      // Types de piment
+      const pepperSection = document.getElementById('pepper-section');
+      const pepperRow = document.getElementById('pepper-row');
+      if (data.peppers && data.peppers.length) {
+        pepperRow.innerHTML = data.peppers.map(p => `<span class="pepper-chip">🌶️ ${p}</span>`).join('');
+        pepperSection.style.display = '';
+      } else {
+        pepperSection.style.display = 'none';
+      }
+
+      // Photo de bouteille si disponible, sinon on garde le SVG générique
+      const bottlePhoto = document.getElementById('bottle-photo');
+      const bottleSvg = document.getElementById('bottle-svg');
+      if (data.imageBottleUrl) {
+        bottlePhoto.src = data.imageBottleUrl;
+        bottlePhoto.alt = data.nameFull;
+        bottlePhoto.style.display = '';
+        bottleSvg.style.display = 'none';
+      } else {
+        bottlePhoto.style.display = 'none';
+        bottleSvg.style.display = '';
       }
 
       // Histoire

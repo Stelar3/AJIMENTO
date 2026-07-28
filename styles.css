@@ -92,10 +92,11 @@ a { color: inherit; }
   margin-top: 4px;
 }
 .gauge-levels span {
-  font-family: 'DM Mono', monospace;
-  font-size: 7.5px;
-  color: rgba(255,255,255,.25);
-  letter-spacing: .02em;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 9px;
+  color: rgba(255,255,255,.3);
+  letter-spacing: .01em;
 }
 .gauge-levels span.active {
   font-weight: 700;

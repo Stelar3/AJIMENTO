@@ -68,10 +68,11 @@ export async function fetchSauceByShortName(nameShort) {
       .select(`
         name_full, name_short, origin_country,
         shu_certified, shu_estimated, shu_community, heat_level_display,
-        story, completion_level,
+        story, completion_level, image_bottle_url,
         heat_avg, flavor_avg, balance_avg, finish_avg, score_avg,
         brands ( name ),
-        sauce_flavor_tags ( flavor_tags ( label_fr ) )
+        sauce_flavor_tags ( flavor_tags ( label_fr ) ),
+        sauce_pepper_types ( pepper_types ( name_fr ) )
       `)
       .eq("name_short", nameShort)
       .eq("status", "published")
@@ -95,6 +96,7 @@ export async function fetchSauceByShortName(nameShort) {
       heatLevelDisplay: data.heat_level_display,
       story: data.story?.fr ?? "",
       tier: data.completion_level,
+      imageBottleUrl: data.image_bottle_url || null,
       ratings: {
         heat: data.heat_avg,
         flavor: data.flavor_avg,
@@ -103,6 +105,7 @@ export async function fetchSauceByShortName(nameShort) {
         score: data.score_avg,
       },
       flavorTags: (data.sauce_flavor_tags || []).map(t => t.flavor_tags?.label_fr).filter(Boolean),
+      peppers: (data.sauce_pepper_types || []).map(p => p.pepper_types?.name_fr).filter(Boolean),
     };
   } catch (err) {
     console.warn("Ajimento: connexion Supabase impossible, retour aux données de démo.", err);

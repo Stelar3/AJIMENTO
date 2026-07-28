@@ -6,6 +6,50 @@
 // échoue, renvoie `null` — la page qui appelle cette fonction
 // doit alors garder ses données de démonstration.
 
+// Récupère toutes les sauces publiées, pour l'écran Explorer.
+// Renvoie [] (liste vide) si Supabase n'est pas configuré ou en cas d'erreur —
+// jamais `null`, pour que la page appelante puisse toujours faire un .map() sans planter.
+export async function fetchAllSauces() {
+  const cfg = window.AJIMENTO_CONFIG;
+  if (!cfg || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+    console.log("Ajimento: Supabase non configuré — Explorer restera vide tant que config.js n'est pas rempli.");
+    return [];
+  }
+  try {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+    const supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+    const { data, error } = await supabase
+      .from("sauces")
+      .select(`
+        name_full, name_short, origin_country, completion_level,
+        shu_certified, shu_estimated, shu_community, heat_level_display,
+        score_avg,
+        brands ( name )
+      `)
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.warn("Ajimento: erreur Supabase (liste des sauces).", error.message);
+      return [];
+    }
+    return (data || []).map(row => ({
+      nameFull: row.name_full,
+      nameShort: row.name_short,
+      brandName: row.brands?.name ?? "",
+      originCountry: row.origin_country ?? "",
+      shu: row.shu_certified ?? row.shu_estimated ?? row.shu_community ?? null,
+      heatLevelDisplay: row.heat_level_display,
+      scoreAvg: row.score_avg,
+      tier: row.completion_level,
+    }));
+  } catch (err) {
+    console.warn("Ajimento: connexion Supabase impossible (liste des sauces).", err);
+    return [];
+  }
+}
+
 export async function fetchSauceByShortName(nameShort) {
   const cfg = window.AJIMENTO_CONFIG;
   if (!cfg || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {

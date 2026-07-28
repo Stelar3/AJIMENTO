@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ajimento — Explorer</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0A0909" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    body { min-height: 100vh; }
+
+    header.page-header {
+      padding: 24px 20px 12px;
+      text-align: center;
+    }
+    header.page-header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 4px;
+    }
+    header.page-header p {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+      padding: 12px 20px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .sauce-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 14px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .sauce-card:hover { transform: translateY(-2px); border-color: var(--fire); }
+
+    .sauce-card .tier {
+      align-self: flex-start;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .tier.gold { color: var(--gold); background: rgba(184,150,62,.15); border: 1px solid rgba(184,150,62,.35); }
+    .tier.silver { color: #C7C2B8; background: rgba(199,194,184,.12); border: 1px solid rgba(199,194,184,.3); }
+    .tier.bronze { color: #C08552; background: rgba(192,133,82,.15); border: 1px solid rgba(192,133,82,.35); }
+
+    .sauce-card .name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+    .sauce-card .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .sauce-card .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--fire);
+    }
+    .sauce-card .score {
+      color: var(--gold);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .empty-state a { color: var(--fire); }
+
+    .loading {
+      text-align: center;
+      padding: 60px 24px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body class="has-bottom-nav">
+
+  <header class="page-header fade-in">
+    <h1>Explorer</h1>
+    <p>Le catalogue, une sauce à la fois</p>
+  </header>
+
+  <div id="content" class="loading">Chargement…</div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏠</span>Accueil</a>
+    <a href="explorer.html" class="active"><span class="icon">🔍</span>Explorer</a>
+    <a href="cave.html"><span class="icon">🗄️</span>Cave</a>
+    <a href="profil.html"><span class="icon">👤</span>Profil</a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script type="module">
+    import { fetchAllSauces } from './sauces.js';
+
+    const FLAGS = { MX: '🇲🇽', PA: '🇵🇦', FR: '🇫🇷', US: '🇺🇸', CO: '🇨🇴', ES: '🇪🇸' };
+
+    function fmtSHU(shu) {
+      if (shu == null) return '—';
+      if (shu >= 1e6) return (shu / 1e6).toFixed(1) + 'M SHU';
+      if (shu >= 1e3) return Math.round(shu / 1e3) + 'k SHU';
+      return shu + ' SHU';
+    }
+
+    function cardHTML(s) {
+      const tier = s.tier || 'bronze';
+      return `
+        <a class="sauce-card fade-in" href="fiche-produit.html?sauce=${encodeURIComponent(s.nameShort)}">
+          <span class="tier ${tier}">${tier}</span>
+          <span class="name">${s.nameFull}</span>
+          <span class="brand">${s.brandName} ${FLAGS[s.originCountry] || ''}</span>
+          <span class="meta">
+            <span>${fmtSHU(s.shu)}</span>
+            ${s.scoreAvg != null ? `<span class="score">★ ${s.scoreAvg}</span>` : ''}
+          </span>
+        </a>
+      `;
+    }
+
+    (async () => {
+      const sauces = await fetchAllSauces();
+      const el = document.getElementById('content');
+      if (!sauces.length) {
+        el.className = 'empty-state';
+        el.innerHTML = `
+          Aucune sauce à afficher pour l'instant.<br/>
+          Si Supabase n'est pas encore configuré, retourne voir <a href="fiche-produit.html">la fiche de démonstration</a> en attendant.
+        `;
+        return;
+      }
+      el.className = 'grid';
+      el.innerHTML = sauces.map(cardHTML).join('');
+    })();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

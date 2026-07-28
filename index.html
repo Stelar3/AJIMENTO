@@ -70,9 +70,8 @@
     .demo-link {
       display: inline-block;
       color: var(--fire);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      letter-spacing: 0.03em;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
       text-decoration: none;
       border-bottom: 1px solid transparent;
     }
@@ -89,7 +88,7 @@
     }
   </style>
 </head>
-<body>
+<body class="has-bottom-nav">
   <div class="home-bg">
     <div class="ingredient" style="left:8%;top:12%;font-size:90px;opacity:.12;--r:-20deg;transform:rotate(-20deg);animation-delay:0s;">🌶️</div>
     <div class="ingredient" style="left:74%;top:15%;font-size:70px;opacity:.1;--r:15deg;transform:rotate(15deg);animation-delay:1.5s;">🌶️</div>
@@ -101,10 +100,17 @@
     <div class="badge">Premier test</div>
     <h1>Ajimento</h1>
     <p class="tagline">Every drop has a story</p>
-    <a class="demo-link" href="fiche-produit.html">Voir un exemple de fiche produit →</a>
+    <a class="demo-link" href="explorer.html">Découvrir le catalogue →</a>
   </div>
 
   <footer>V0.0.3 · CONSTRUIT LE 28 JUILLET 2026</footer>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="active"><span class="icon">🏠</span>Accueil</a>
+    <a href="explorer.html"><span class="icon">🔍</span>Explorer</a>
+    <a href="cave.html"><span class="icon">🗄️</span>Cave</a>
+    <a href="profil.html"><span class="icon">👤</span>Profil</a>
+  </nav>
 
   <script>
     // Ceci enregistre le "service worker", la pièce technique qui permet

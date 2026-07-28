@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ajimento — Bienvenue</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0A0909" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .onboard-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 25% 25%, #3D0800 0%, #0A0404 55%, #030303 100%),
+        radial-gradient(ellipse at 78% 75%, #C0392B22 0%, transparent 65%);
+      z-index: 0;
+    }
+    .content { position: relative; z-index: 1; max-width: 340px; }
+
+    .icon-big { font-size: 3.2rem; margin-bottom: 22px; }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 14px;
+    }
+    p {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 34px;
+    }
+    .cta-primary {
+      display: inline-block;
+      background: linear-gradient(120deg, var(--fire), var(--red));
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-decoration: none;
+      padding: 13px 32px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .cta-secondary {
+      display: block;
+      color: var(--muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="onboard-bg">
+    <div class="ingredient" style="left:10%;top:15%;font-size:80px;opacity:.12;--r:-20deg;transform:rotate(-20deg);">🌶️</div>
+    <div class="ingredient" style="left:72%;top:70%;font-size:70px;opacity:.1;--r:15deg;transform:rotate(15deg);animation-delay:2s;">🍾</div>
+  </div>
+
+  <div class="content fade-in">
+    <div class="icon-big">🌶️</div>
+    <h1>Bienvenue sur Ajimento</h1>
+    <p>
+      Chaque sauce a son histoire. Découvre, note et garde une trace
+      des sauces piquantes que tu goûtes — un peu comme Vivino, mais
+      pour le piment.
+    </p>
+    <a class="cta-primary" href="explorer.html">Découvrir le catalogue</a>
+    <a class="cta-secondary" href="index.html">Passer</a>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

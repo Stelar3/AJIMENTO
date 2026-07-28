@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ajimento</title>
+
+  <!-- PWA : ce qui permet "d'installer" l'app sur l'écran d'accueil -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#C0392B" />
+
+  <!-- Réglages spécifiques iPhone pour que l'ajout à l'écran d'accueil ressemble à une vraie app -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ajimento" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+  <!-- Polices de la charte de marque -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --brick: #C0392B;
+      --cream: #FAF9F5;
+      --ink: #2A2422;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 3.2rem;
+      color: var(--brick);
+      margin: 0 0 8px 0;
+      letter-spacing: 0.02em;
+    }
+    p.tagline {
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--ink);
+      opacity: 0.75;
+      margin: 0 0 40px 0;
+    }
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--brick);
+      color: var(--brick);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .flame {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    footer {
+      position: fixed;
+      bottom: 20px;
+      font-size: 0.7rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="flame">🌶️</div>
+  <div class="badge">Premier test</div>
+  <h1>Ajimento</h1>
+  <p class="tagline">Every drop has a story</p>
+
+  <footer>v0.0.1 — construit le 28 juillet 2026</footer>
+
+  <script>
+    // Ceci enregistre le "service worker", la pièce technique qui permet
+    // à l'app de fonctionner comme une vraie application une fois installée.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(err => {
+          console.log('Service worker non enregistré :', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

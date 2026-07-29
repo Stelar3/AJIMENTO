@@ -2,12 +2,13 @@
 // d'être "installable" et de fonctionner même sans connexion.
 // Pour l'instant, il se contente de mettre en cache les fichiers de base.
 
-const CACHE_NAME = "ajimento-v7";
+const CACHE_NAME = "ajimento-v10";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./fiche-produit.html",
   "./explorer.html",
+  "./scanner.html",
   "./cave.html",
   "./profil.html",
   "./onboarding.html",
@@ -16,7 +17,9 @@ const FILES_TO_CACHE = [
   "./sauces.js",
   "./manifest.json",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+  "./icons/apple-touch-icon.png",
+  "./icons/favicon-32.png"
 ];
 
 self.addEventListener("install", (event) => {

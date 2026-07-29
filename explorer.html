@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#0A0909" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/favicon-32.png" type="image/png" />
 
   <link rel="stylesheet" href="styles.css" />
 
@@ -44,6 +45,7 @@
     .sauce-card {
       background: var(--card);
       border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
       border-radius: 14px;
       padding: 16px 14px;
       text-decoration: none;
@@ -54,27 +56,14 @@
       transition: transform 0.15s, border-color 0.15s;
     }
     .sauce-card:hover { transform: translateY(-2px); border-color: var(--fire); }
-
-    .sauce-card .tier {
-      align-self: flex-start;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 600;
-      font-size: 0.6rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 999px;
-    }
-    .tier.gold { color: var(--gold); background: rgba(184,150,62,.15); border: 1px solid rgba(184,150,62,.35); }
-    .tier.silver { color: #C7C2B8; background: rgba(199,194,184,.12); border: 1px solid rgba(199,194,184,.3); }
-    .tier.bronze { color: #C08552; background: rgba(192,133,82,.15); border: 1px solid rgba(192,133,82,.35); }
+    /* Fiche la mieux documentée (ex-"Gold") : un simple accent, pas un badge à décoder */
+    .sauce-card.is-complete { border-left-color: var(--gold); }
 
     .sauce-card .name {
       font-family: 'Outfit', sans-serif;
       font-weight: 500;
       font-size: 0.95rem;
       line-height: 1.3;
-      margin-top: 4px;
       /* 2 lignes max, pour que la grille reste régulière même avec des noms longs */
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -132,10 +121,11 @@
   <div id="content" class="loading">Chargement…</div>
 
   <nav class="bottom-nav">
-    <a href="index.html"><span class="icon">🏠</span>Accueil</a>
-    <a href="explorer.html" class="active"><span class="icon">🔍</span>Explorer</a>
-    <a href="cave.html"><span class="icon">🗄️</span>Cave</a>
-    <a href="profil.html"><span class="icon">👤</span>Profil</a>
+    <a href="index.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 L12 4 L20 11.5"/><path d="M6 10V19a1 1 0 0 0 1 1H17a1 1 0 0 0 1-1V10"/><path d="M10 20V14H14V20"/></svg></span>Accueil</a>
+    <a href="explorer.html" class="active"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span>Explorer</a>
+    <a href="scanner.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1H8"/><path d="M16 4H19a1 1 0 0 1 1 1V8"/><path d="M20 16V19a1 1 0 0 1-1 1H16"/><path d="M8 20H5a1 1 0 0 1-1-1V16"/></svg></span>Scanner</a>
+    <a href="cave.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0 1 14 0V20"/><path d="M5 20H19"/><path d="M9 20V14"/><path d="M15 20V14"/></svg></span>Cave</a>
+    <a href="profil.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/></svg></span>Profil</a>
   </nav>
 
   <script src="config.js"></script>
@@ -152,15 +142,14 @@
     }
 
     function cardHTML(s) {
-      const tier = s.tier || 'bronze';
+      const complete = s.tier === 'gold';
       return `
-        <a class="sauce-card fade-in" href="fiche-produit.html?sauce=${encodeURIComponent(s.nameShort)}">
-          <span class="tier ${tier}">${tier}</span>
-          <span class="name">${s.nameFull}</span>
+        <a class="sauce-card fade-in${complete ? ' is-complete' : ''}" href="fiche-produit.html?sauce=${encodeURIComponent(s.nameShort)}">
+          <span class="name">${s.nameShort}</span>
           <span class="brand">${s.brandName} ${FLAGS[s.originCountry] || ''}</span>
           <span class="meta">
             <span>${fmtSHU(s.shu)}</span>
-            ${s.scoreAvg != null ? `<span class="score">★ ${s.scoreAvg}</span>` : ''}
+            ${s.scoreAvg != null ? `<span class="score">${s.scoreAvg} / 5</span>` : ''}
           </span>
         </a>
       `;

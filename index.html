@@ -14,6 +14,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ajimento" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/favicon-32.png" type="image/png" />
 
   <link rel="stylesheet" href="styles.css" />
 
@@ -42,10 +43,11 @@
     h1 {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 700;
-      font-size: 3rem;
-      letter-spacing: 0.04em;
+      font-size: 2.5rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--text);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
     p.tagline {
       font-family: 'Cormorant Garamond', serif;
@@ -59,15 +61,15 @@
     .stats-row {
       display: flex;
       justify-content: center;
-      gap: 28px;
+      gap: 22px;
       margin-bottom: 32px;
       min-height: 40px;
     }
-    .stat { display: flex; flex-direction: column; align-items: center; }
+    .stat { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
     .stat .n {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 700;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       color: var(--fire);
     }
     .stat .l {
@@ -143,13 +145,32 @@
 </head>
 <body class="has-bottom-nav">
   <div class="home-bg">
-    <div class="ingredient" style="left:8%;top:12%;font-size:90px;opacity:.12;--r:-20deg;transform:rotate(-20deg);animation-delay:0s;">🌶️</div>
-    <div class="ingredient" style="left:74%;top:15%;font-size:70px;opacity:.1;--r:15deg;transform:rotate(15deg);animation-delay:1.5s;">🌶️</div>
-    <div class="ingredient" style="left:70%;top:68%;font-size:80px;opacity:.1;--r:-10deg;transform:rotate(-10deg);animation-delay:3s;">🍾</div>
-    <div class="ingredient" style="left:6%;top:70%;font-size:60px;opacity:.09;--r:20deg;transform:rotate(20deg);animation-delay:2s;">🌶️</div>
+    <div class="ingredient" style="left:8%;top:12%;width:90px;height:90px;opacity:.14;--r:-20deg;transform:rotate(-20deg);animation-delay:0s;">
+      <svg viewBox="0 0 64 64" width="100%" height="100%"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="var(--fire)"/></svg>
+    </div>
+    <div class="ingredient" style="left:74%;top:15%;width:60px;height:60px;opacity:.1;--r:15deg;transform:rotate(15deg);animation-delay:1.5s;">
+      <svg viewBox="0 0 64 64" width="100%" height="100%"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="var(--gold)"/></svg>
+    </div>
+    <div class="ingredient" style="left:70%;top:68%;width:75px;height:75px;opacity:.1;--r:-10deg;transform:rotate(-10deg);animation-delay:3s;">
+      <svg viewBox="0 0 64 64" width="100%" height="100%"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="var(--red)"/></svg>
+    </div>
+    <div class="ingredient" style="left:6%;top:70%;width:50px;height:50px;opacity:.09;--r:20deg;transform:rotate(20deg);animation-delay:2s;">
+      <svg viewBox="0 0 64 64" width="100%" height="100%"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="var(--fire)"/></svg>
+    </div>
   </div>
 
   <div class="content fade-in">
+    <svg class="logo-mark" width="44" height="44" viewBox="0 0 64 64" style="margin-bottom:14px;">
+      <defs>
+        <linearGradient id="logoGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#F5D76E"/>
+          <stop offset="45%" stop-color="var(--fire)"/>
+          <stop offset="100%" stop-color="var(--red)"/>
+        </linearGradient>
+      </defs>
+      <path d="M32 6 C40 20 50 30 50 42 C50 52 42 58 32 58 C22 58 14 52 14 42 C14 30 24 20 32 6 Z" fill="url(#logoGrad)"/>
+      <path d="M32 6 C34 12 33 16 30 18" stroke="#FFF4D6" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+    </svg>
     <h1>Ajimento</h1>
     <p class="tagline">Every drop has a story</p>
 
@@ -170,10 +191,11 @@
   <footer>V0.0.4 · CONSTRUIT LE 29 JUILLET 2026</footer>
 
   <nav class="bottom-nav">
-    <a href="index.html" class="active"><span class="icon">🏠</span>Accueil</a>
-    <a href="explorer.html"><span class="icon">🔍</span>Explorer</a>
-    <a href="cave.html"><span class="icon">🗄️</span>Cave</a>
-    <a href="profil.html"><span class="icon">👤</span>Profil</a>
+    <a href="index.html" class="active"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 L12 4 L20 11.5"/><path d="M6 10V19a1 1 0 0 0 1 1H17a1 1 0 0 0 1-1V10"/><path d="M10 20V14H14V20"/></svg></span>Accueil</a>
+    <a href="explorer.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span>Explorer</a>
+    <a href="scanner.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1H8"/><path d="M16 4H19a1 1 0 0 1 1 1V8"/><path d="M20 16V19a1 1 0 0 1-1 1H16"/><path d="M8 20H5a1 1 0 0 1-1-1V16"/></svg></span>Scanner</a>
+    <a href="cave.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0 1 14 0V20"/><path d="M5 20H19"/><path d="M9 20V14"/><path d="M15 20V14"/></svg></span>Cave</a>
+    <a href="profil.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/></svg></span>Profil</a>
   </nav>
 
   <script src="config.js"></script>
@@ -193,11 +215,17 @@
       const sauces = await fetchAllSauces();
       const statsRow = document.getElementById('stats-row');
 
+      // Dégustations : nécessite les comptes utilisateurs (pas encore construits),
+      // donc pas de vrai chiffre à afficher pour l'instant — on l'annonce honnêtement
+      // plutôt que d'inventer un nombre.
+      const degustationsStat = `<div class="stat"><span class="n">—</span><span class="l">dégustations</span></div>`;
+
       if (!sauces.length) {
         // Pas encore de données réelles : on garde une accroche simple, sans faux chiffres
         statsRow.innerHTML = `
           <div class="stat"><span class="n">—</span><span class="l">sauces</span></div>
           <div class="stat"><span class="n">—</span><span class="l">pays</span></div>
+          ${degustationsStat}
         `;
         return;
       }
@@ -206,6 +234,7 @@
       statsRow.innerHTML = `
         <div class="stat"><span class="n">${sauces.length}</span><span class="l">sauces</span></div>
         <div class="stat"><span class="n">${countries.size}</span><span class="l">pays</span></div>
+        ${degustationsStat}
       `;
 
       // Sauce mise en avant : priorité aux fiches Gold, sinon la plus récente

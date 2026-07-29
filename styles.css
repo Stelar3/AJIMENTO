@@ -131,7 +131,8 @@ a { color: inherit; }
   opacity: 0.6;
   transition: opacity 0.2s, color 0.2s;
 }
-.bottom-nav a .icon { font-size: 1.3rem; line-height: 1; }
+.bottom-nav a .icon { display: flex; }
+.bottom-nav a .icon svg { width: 22px; height: 22px; }
 .bottom-nav a.active,
 .bottom-nav a:hover {
   opacity: 1;

@@ -449,15 +449,74 @@
       flavorTags: ['Fruité', 'Fumé', 'Vinaigré'],
       peppers: ['Habanero'],
       imageBottleUrl: null,
+      ingredientsRaw: 'Piment habanero rouge, tomate, ail, vinaigre, sel, épices',
       story: "L'une des sauces les plus vendues au monde. Et pourtant, la plupart de ceux qui l'utilisent tous les jours ne savent pas vraiment ce qu'ils ont dans les mains : un habanero rouge, de l'ail, de la tomate — et une recette mexicaine documentée depuis 1968. Chaque goutte raconte une histoire. C'est celle-ci.",
       tier: 'gold',
       isDemo: true,
     };
 
+    // --- Fonds décoratifs : la variété dépend des ingrédients réels de la sauce ---
+    // Chaque entrée fournit la forme SVG interne (sans couleur, injectée à l'affichage)
+    // d'un ingrédient courant. "piment" sert aussi de repli générique.
+    const ING_ICONS = {
+      piment: '<path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="{c}"/>',
+      ail: '<path d="M32 8c10 0 16 9 16 19 0 13-7 21-16 21s-16-8-16-21c0-10 6-19 16-19Z" fill="{c}"/><path d="M30 6c1-2 3-2 4 0 1 2 0 4-2 5-2-1-3-3-2-5Z" fill="{c}"/>',
+      tomate: '<circle cx="32" cy="38" r="18" fill="{c}"/><path d="M32 12l2.5 5 5.5.8-4 4 1 5.5-5-2.8-5 2.8 1-5.5-4-4 5.5-.8z" fill="{c}"/>',
+      oignon: '<path d="M32 14c10 2 16 12 16 22 0 11-7 18-16 18s-16-7-16-18c0-10 6-20 16-22Z" fill="{c}"/><path d="M32 14c-1-4 0-8 3-10 2 3 1 7-3 10Z" fill="{c}"/>',
+      citron: '<ellipse cx="32" cy="34" rx="22" ry="16" fill="{c}"/><path d="M10 34c-3-1-5-3-4-5 1 2 3 3 4 5ZM54 34c3-1 5-3 4-5-1 2-3 3-4 5Z" fill="{c}"/>',
+      carotte: '<path d="M26 10 L38 10 L34 52 Q32 58 30 52 Z" fill="{c}"/><path d="M28 10c-2-5-6-8-10-8 2 4 6 7 10 8ZM36 10c2-5 6-8 10-8-2 4-6 7-10 8Z" fill="{c}" opacity=".8"/>',
+      curcuma: '<path d="M20 30c-4-6 0-14 8-14 4 0 6 3 9 2 6-2 12 2 12 9 0 5-4 7-3 12 1 6-3 11-9 11-4 0-6-3-10-2-6 2-11-2-11-8 0-4 3-6 4-10Z" fill="{c}"/>',
+    };
+    // Ordre de priorité de détection + mots-clés associés (texte déjà normalisé : minuscules, sans accents).
+    const ING_KEYWORDS = [
+      ['piment', ['piment', 'habanero', 'chombo', 'cayenne', 'arbol', 'puya', 'jolokia', 'tabasco', 'jalapeno', 'serrano', 'scotch bonnet', 'chili', 'chile', 'ghost pepper', 'fantome']],
+      ['tomate', ['tomate']],
+      ['ail', ['ail']],
+      ['oignon', ['oignon']],
+      ['citron', ['citron', 'lime']],
+      ['carotte', ['carotte']],
+      ['curcuma', ['curcuma', 'gingembre']],
+    ];
+    const FALLBACK_ORDER = ['piment', 'tomate', 'ail'];
+
+    function stripAccents(s) {
+      return s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
+    // Repère jusqu'à 3 ingrédients présents dans le texte brut de la sauce ;
+    // complète avec un repli générique si la liste est absente ou trop courte,
+    // pour que le fond garde toujours 3 formes (comme avant).
+    function pickIngredients(rawText) {
+      const found = [];
+      if (rawText) {
+        const norm = stripAccents(rawText.toLowerCase());
+        for (const [key, keywords] of ING_KEYWORDS) {
+          if (keywords.some(k => norm.includes(k))) found.push(key);
+          if (found.length >= 3) break;
+        }
+      }
+      for (const key of FALLBACK_ORDER) {
+        if (found.length >= 3) break;
+        if (!found.includes(key)) found.push(key);
+      }
+      return found.slice(0, 3);
+    }
+
+    function renderHeroIngredients(rawText) {
+      const keys = pickIngredients(rawText);
+      const colors = ['var(--fire)', 'var(--gold)', 'var(--red)'];
+      document.querySelectorAll('.hero-bg .ingredient').forEach((el, i) => {
+        const key = keys[i] || 'piment';
+        const shape = (ING_ICONS[key] || ING_ICONS.piment).replaceAll('{c}', colors[i] || 'var(--fire)');
+        el.innerHTML = `<svg viewBox="0 0 64 64" width="100%" height="100%">${shape}</svg>`;
+      });
+    }
+
     const FLAGS = { MX: '🇲🇽', PA: '🇵🇦', FR: '🇫🇷', US: '🇺🇸', CO: '🇨🇴', ES: '🇪🇸', BZ: '🇧🇿' };
     const COUNTRY_NAMES = { MX: 'Mexique', PA: 'Panama', FR: 'France', US: 'États-Unis', CO: 'Colombie', ES: 'Espagne', BZ: 'Belize' };
 
     function renderSauce(data) {
+      renderHeroIngredients(data.ingredientsRaw);
       document.getElementById('sauce-name').textContent = data.nameFull;
       const countryLabel = COUNTRY_NAMES[data.originCountry] || data.originCountry || '';
       document.getElementById('brand-line').textContent =

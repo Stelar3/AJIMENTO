@@ -124,10 +124,10 @@ a { color: inherit; }
   gap: 3px;
   text-decoration: none;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 0.62rem;
+  letter-spacing: 0.02em;
   opacity: 0.6;
   transition: opacity 0.2s, color 0.2s;
 }

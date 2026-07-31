@@ -68,7 +68,7 @@ export async function fetchSauceByShortName(nameShort) {
       .select(`
         name_full, name_short, origin_country,
         shu_certified, shu_estimated, shu_community, heat_level_display,
-        story, completion_level, image_bottle_url,
+        story, completion_level, image_bottle_url, ingredients_raw,
         heat_avg, flavor_avg, balance_avg, finish_avg, score_avg,
         brands ( name ),
         sauce_flavor_tags ( flavor_tags ( label_fr ) ),
@@ -97,6 +97,7 @@ export async function fetchSauceByShortName(nameShort) {
       story: data.story?.fr ?? "",
       tier: data.completion_level,
       imageBottleUrl: data.image_bottle_url || null,
+      ingredientsRaw: data.ingredients_raw || null,
       ratings: {
         heat: data.heat_avg,
         flavor: data.flavor_avg,

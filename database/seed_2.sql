@@ -51,7 +51,7 @@ insert into sauces (
 ) values (
   'Cholula Original',
   'Cholula Original',
-  (select id from brands where name = 'Cholula'),
+  (select id from brands where name = 'Cholula' order by created_at asc limit 1),
   'MX',
   1500, -- estimation : le fabricant annonce 1 000–2 000 SHU
   2,
@@ -62,7 +62,7 @@ insert into sauces (
 ), (
   'Valentina Salsa Picante',
   'Valentina',
-  (select id from brands where name = 'Valentina'),
+  (select id from brands where name = 'Valentina' order by created_at asc limit 1),
   'MX',
   1000, -- estimation : la version "hot" standard, entre 900 et 1 200 SHU selon les sources
   2,
@@ -73,7 +73,7 @@ insert into sauces (
 ), (
   'Tabasco Original Red Sauce',
   'Tabasco Original',
-  (select id from brands where name = 'Tabasco'),
+  (select id from brands where name = 'Tabasco' order by created_at asc limit 1),
   'US',
   3750, -- estimation : le fabricant annonce 2 500–5 000 SHU
   2,
@@ -84,7 +84,7 @@ insert into sauces (
 ), (
   'Frank''s RedHot Original Cayenne Pepper Sauce',
   'Frank''s RedHot',
-  (select id from brands where name = 'Frank''s RedHot'),
+  (select id from brands where name = 'Frank''s RedHot' order by created_at asc limit 1),
   'US',
   450, -- mesure largement documentée
   2,
@@ -95,7 +95,7 @@ insert into sauces (
 ), (
   'Marie Sharp''s Hot Habanero Pepper Sauce',
   'Marie Sharp''s Hot',
-  (select id from brands where name = 'Marie Sharp''s'),
+  (select id from brands where name = 'Marie Sharp''s' order by created_at asc limit 1),
   'BZ',
   null, -- sources publiques trop larges et contradictoires (50 000 à 250 000 SHU) pour retenir un chiffre fiable
   null,
@@ -106,7 +106,7 @@ insert into sauces (
 ), (
   'Ajibasco Salsa de Ají Picante',
   'Ajibasco',
-  (select id from brands where name = 'Ajibasco'),
+  (select id from brands where name = 'Ajibasco' order by created_at asc limit 1),
   'CO',
   null, -- pas de valeur SHU publique fiable trouvée
   null,
@@ -117,7 +117,7 @@ insert into sauces (
 ), (
   'Blair''s Ultra Death Sauce',
   'Blair''s Ultra Death',
-  (select id from brands where name = 'Blair''s'),
+  (select id from brands where name = 'Blair''s' order by created_at asc limit 1),
   'US',
   1100000, -- estimation : le fabricant/revendeurs annoncent environ 1,1 million SHU (piment fantôme pur)
   10,
@@ -128,7 +128,7 @@ insert into sauces (
 ), (
   'El Yucateco Black Label Reserve Chile Habanero',
   'El Yucateco Black Label',
-  (select id from brands where name = 'El Yucateco'),
+  (select id from brands where name = 'El Yucateco' order by created_at asc limit 1),
   'MX',
   5000, -- estimation : les sources varient entre 4 500 et 5 500 SHU
   2,

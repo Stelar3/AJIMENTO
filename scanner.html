@@ -249,6 +249,12 @@
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         video.srcObject = stream;
+        // Attendre que la vidéo ait vraiment ses dimensions avant d'autoriser
+        // la capture — sinon un clic trop rapide capture une image vide
+        // (largeur/hauteur à 0), et l'OCR renvoie du bruit illisible.
+        if (video.readyState < 2) {
+          await new Promise((resolve) => video.addEventListener('loadedmetadata', resolve, { once: true }));
+        }
         frame.style.display = '';
         captureBtn.disabled = false;
         setStatus("Cadre l'étiquette, puis prends la photo.");
@@ -283,21 +289,53 @@
       manualLink.href = 'explorer.html?q=' + encodeURIComponent(ocrTextForFallback.slice(0, 40));
     }
 
+    // Éclaircit le travail de l'OCR : on ne lui donne que la zone cadrée par
+    // le viseur (pas tout le décor autour), convertie en niveaux de gris avec
+    // un contraste renforcé — deux techniques classiques qui améliorent
+    // nettement la lecture de texte sur fond photo, par rapport à une image
+    // couleur brute.
+    function prepareCanvasForOcr() {
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      const cropW = vw * 0.8;
+      const cropH = vh * 0.45;
+      const cropX = (vw - cropW) / 2;
+      const cropY = (vh - cropH) / 2;
+
+      canvas.width = cropW;
+      canvas.height = cropH;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+      const imageData = ctx.getImageData(0, 0, cropW, cropH);
+      const d = imageData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        const contrasted = Math.min(255, Math.max(0, (gray - 128) * 1.6 + 128));
+        d[i] = d[i + 1] = d[i + 2] = contrasted;
+      }
+      ctx.putImageData(imageData, 0, 0);
+    }
+
     captureBtn.addEventListener('click', async () => {
       if (typeof Tesseract === 'undefined') {
         setStatus("La lecture de l'étiquette n'a pas pu se charger. Vérifie ta connexion et réessaie.");
+        return;
+      }
+      if (!video.videoWidth || !video.videoHeight) {
+        setStatus("La caméra n'est pas encore prête — attends une seconde puis réessaie.");
         return;
       }
       captureBtn.disabled = true;
       resultsBlock.style.display = 'none';
       setStatus("Lecture de l'étiquette…");
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
+      prepareCanvasForOcr();
 
       try {
-        const { data } = await Tesseract.recognize(canvas, 'eng');
+        const { data } = await Tesseract.recognize(canvas, 'eng', {
+          tessedit_pageseg_mode: '11', // "sparse text" : mieux adapté à une étiquette qu'à un paragraphe
+        });
         const cleaned = (data.text || '').replace(/\s+/g, ' ').trim();
         const candidates = cleaned ? await matchSaucesByLabelText(cleaned) : [];
         renderResults(candidates, cleaned);

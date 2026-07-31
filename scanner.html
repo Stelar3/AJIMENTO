@@ -179,7 +179,7 @@
         <path d="M20 16V19a1 1 0 0 1-1 1H16" />
         <path d="M8 20H5a1 1 0 0 1-1-1V16" />
       </svg>
-      <p>Ajimento a besoin de ta caméra pour photographier l'étiquette.</p>
+      <p id="scan-permission-text">Ajimento a besoin de ta caméra pour photographier l'étiquette.</p>
       <button id="btn-enable-camera">Activer la caméra</button>
     </div>
   </div>
@@ -218,6 +218,31 @@
 
     function setStatus(t) { statusText.textContent = t; }
 
+    const permissionText = document.getElementById('scan-permission-text');
+
+    // Messages différents selon la vraie cause — un refus de permission ne se
+    // corrige pas en recliquant sur le bouton, il faut aller dans les réglages
+    // du navigateur. Sans ça, "rien ne se passe" au deuxième clic est normal
+    // (le navigateur ne réaffiche pas sa popup une fois la permission refusée).
+    function permissionMessageFor(err) {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return "Ce navigateur ne permet pas d'accéder à la caméra ici. Essaie dans Safari ou Chrome directement (pas dans une appli tierce), ou vérifie que le site est bien en https.";
+      }
+      switch (err && err.name) {
+        case 'NotAllowedError':
+        case 'PermissionDeniedError':
+          return "La caméra a été bloquée pour ce site. Ouvre les réglages du navigateur (l'icône ⓘ ou le cadenas à côté de l'adresse, ou Réglages → Safari/Chrome → Caméra sur iPhone), autorise la caméra pour ajimento, puis recharge la page.";
+        case 'NotFoundError':
+        case 'DevicesNotFoundError':
+          return "Aucune caméra détectée sur cet appareil.";
+        case 'NotReadableError':
+        case 'TrackStartError':
+          return "La caméra semble utilisée par une autre application. Ferme les autres apps qui pourraient l'utiliser puis réessaie.";
+        default:
+          return "Impossible d'accéder à la caméra. Vérifie les autorisations du site puis réessaie.";
+      }
+    }
+
     async function startCamera() {
       permissionBlock.style.display = 'none';
       setStatus('Autorisation de la caméra…');
@@ -231,6 +256,7 @@
         console.warn('Ajimento: caméra indisponible.', err);
         frame.style.display = 'none';
         captureBtn.disabled = true;
+        permissionText.textContent = permissionMessageFor(err);
         permissionBlock.style.display = 'flex';
         setStatus('');
       }

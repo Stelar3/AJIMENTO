@@ -47,6 +47,61 @@
     .search-input::placeholder { color: var(--muted); }
     .search-input:focus { outline: none; border-color: var(--fire); }
 
+    /* ---- Filtres : chips rapides, cumulables, une rangée par critère ---- */
+    .filters-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 4px 0 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .filter-group { display: flex; align-items: center; gap: 8px; padding-left: 20px; }
+    .filter-group-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+      width: 58px;
+    }
+    .chip-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 2px 20px 2px 0;
+    }
+    .chip-row::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 13px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .filter-chip.active {
+      background: rgba(212, 96, 58, 0.16);
+      border-color: var(--fire);
+      color: var(--fire);
+    }
+    .filters-reset {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: underline;
+      margin-left: 20px;
+      align-self: flex-start;
+      display: none;
+    }
+    .filters-reset.visible { display: inline-block; }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -57,6 +112,7 @@
     }
 
     .sauce-card {
+      position: relative;
       background: var(--card);
       border: 1px solid var(--border);
       border-left: 3px solid var(--border);
@@ -67,11 +123,25 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      overflow: hidden;
       transition: transform 0.15s, border-color 0.15s;
     }
     .sauce-card:hover { transform: translateY(-2px); border-color: var(--fire); }
     /* Fiche la mieux documentée (ex-"Gold") : un simple accent, pas un badge à décoder */
     .sauce-card.is-complete { border-left-color: var(--gold); }
+
+    /* Repères d'ingrédients : mêmes formes que le fond de la fiche produit,
+       en miniature, pour identifier une sauce au premier coup d'œil dans la grille. */
+    .card-ing-bg {
+      position: absolute;
+      top: 0; right: 0;
+      width: 72px;
+      height: 72px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card-ing-bg svg { position: absolute; }
+    .sauce-card .name, .sauce-card .brand, .sauce-card .meta { position: relative; z-index: 1; }
 
     .sauce-card .name {
       font-family: 'Outfit', sans-serif;
@@ -136,6 +206,26 @@
     <input type="search" id="search-input" class="search-input" placeholder="Chercher une sauce ou une marque…" />
   </div>
 
+  <div id="filters-wrap" class="filters-wrap" style="display:none;">
+    <div class="filter-group" data-group="pepper">
+      <span class="filter-group-label">Piment</span>
+      <div class="chip-row" id="chips-pepper"></div>
+    </div>
+    <div class="filter-group" data-group="country">
+      <span class="filter-group-label">Pays</span>
+      <div class="chip-row" id="chips-country"></div>
+    </div>
+    <div class="filter-group" data-group="flavor">
+      <span class="filter-group-label">Saveur</span>
+      <div class="chip-row" id="chips-flavor"></div>
+    </div>
+    <div class="filter-group" data-group="ingredient">
+      <span class="filter-group-label">Ingrédient</span>
+      <div class="chip-row" id="chips-ingredient"></div>
+    </div>
+    <button class="filters-reset" id="filters-reset" type="button">Réinitialiser les filtres</button>
+  </div>
+
   <div id="content" class="loading">Chargement…</div>
 
   <nav class="bottom-nav">
@@ -149,8 +239,16 @@
   <script src="config.js"></script>
   <script type="module">
     import { fetchAllSauces } from './sauces.js';
+    import { ING_ICONS, matchedIngredientKeys } from './ingredients.js';
 
-    const FLAGS = { MX: '🇲🇽', PA: '🇵🇦', FR: '🇫🇷', US: '🇺🇸', CO: '🇨🇴', ES: '🇪🇸', BZ: '🇧🇿' };
+    const FLAGS = { MX: '🇲🇽', PA: '🇵🇦', FR: '🇫🇷', US: '🇺🇸', CO: '🇨🇴', ES: '🇪🇸', BZ: '🇧🇿', CA: '🇨🇦', DE: '🇩🇪', HN: '🇭🇳', GT: '🇬🇹', CR: '🇨🇷', SI: '🇸🇮', GB: '🇬🇧' };
+    const COUNTRY_NAMES = { MX: 'Mexique', PA: 'Panama', FR: 'France', US: 'États-Unis', CO: 'Colombie', ES: 'Espagne', BZ: 'Belize', CA: 'Canada', DE: 'Allemagne', HN: 'Honduras', GT: 'Guatemala', CR: 'Costa Rica', SI: 'Slovénie', GB: 'Royaume-Uni' };
+    const ING_COLORS = ['var(--fire)', 'var(--gold)', 'var(--red)'];
+
+    // Filtres actifs, cumulables entre catégories (ET), et à choix multiple
+    // dans une même catégorie (OU) — ex: "Habanero" + "Panama" restreint la
+    // liste aux sauces panaméennes à base de habanero.
+    const activeFilters = { pepper: new Set(), country: new Set(), flavor: new Set(), ingredient: new Set() };
 
     function fmtSHU(shu) {
       if (shu == null) return '—';
@@ -159,10 +257,26 @@
       return shu + ' SHU';
     }
 
+    // Petit repère visuel dans le coin de la carte, avec jusqu'à 2 ingrédients
+    // réellement détectés dans le texte de la sauce (pas de repli générique ici :
+    // mieux vaut une carte neutre qu'une carte qui ment sur son contenu).
+    function ingredientBadgeHTML(s) {
+      const keys = (s.ingredientKeys || []).slice(0, 2);
+      if (!keys.length) return '';
+      const shapes = keys.map((key, i) => {
+        const shape = (ING_ICONS[key] || ING_ICONS.piment).replaceAll('{c}', ING_COLORS[i] || 'var(--fire)');
+        const size = i === 0 ? 52 : 34;
+        const pos = i === 0 ? 'top:2px;right:2px;opacity:.22;' : 'top:26px;right:32px;opacity:.16;';
+        return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" style="position:absolute;${pos}">${shape}</svg>`;
+      }).join('');
+      return `<span class="card-ing-bg">${shapes}</span>`;
+    }
+
     function cardHTML(s) {
       const complete = s.tier === 'gold';
       return `
         <a class="sauce-card fade-in${complete ? ' is-complete' : ''}" href="fiche-produit.html?sauce=${encodeURIComponent(s.nameShort)}">
+          ${ingredientBadgeHTML(s)}
           <span class="name">${s.nameShort}</span>
           <span class="brand">${s.brandName} ${FLAGS[s.originCountry] || ''}</span>
           <span class="meta">
@@ -181,11 +295,51 @@
       const el = document.getElementById('content');
       if (!list.length) {
         el.className = 'empty-state';
-        el.innerHTML = `Aucune sauce ne correspond à cette recherche. <a href="explorer.html">Voir tout le catalogue</a>`;
+        el.innerHTML = `Aucune sauce ne correspond à ces critères. <a href="explorer.html">Voir tout le catalogue</a>`;
         return;
       }
       el.className = 'grid';
       el.innerHTML = list.map(cardHTML).join('');
+    }
+
+    function passesFilters(s) {
+      if (activeFilters.pepper.size && !(s.peppers || []).some(p => activeFilters.pepper.has(p))) return false;
+      if (activeFilters.country.size && !activeFilters.country.has(s.originCountry)) return false;
+      if (activeFilters.flavor.size && !(s.flavorTags || []).some(f => activeFilters.flavor.has(f))) return false;
+      if (activeFilters.ingredient.size && !(s.ingredientKeys || []).some(i => activeFilters.ingredient.has(i))) return false;
+      return true;
+    }
+
+    // Construit les chips d'une catégorie à partir des valeurs réellement
+    // présentes dans le catalogue (rien de codé en dur : ça suit la base
+    // au fil des prochaines vagues de sauces ajoutées).
+    function buildChipGroup(containerId, group, values, labelFor) {
+      const container = document.getElementById(containerId);
+      const parentGroup = container.closest('.filter-group');
+      if (parentGroup) parentGroup.style.display = values.length ? '' : 'none';
+      if (!values.length) return;
+      container.innerHTML = values.map(v => `<button type="button" class="filter-chip" data-group="${group}" data-value="${encodeURIComponent(v)}">${labelFor ? labelFor(v) : v}</button>`).join('');
+      container.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const value = decodeURIComponent(chip.dataset.value);
+          const set = activeFilters[group];
+          if (set.has(value)) { set.delete(value); chip.classList.remove('active'); }
+          else { set.add(value); chip.classList.add('active'); }
+          applyAll();
+        });
+      });
+    }
+
+    let allSauces = [];
+    function applyAll() {
+      const searchInput = document.getElementById('search-input');
+      const q = normalize(searchInput.value);
+      let list = allSauces.filter(passesFilters);
+      if (q) list = list.filter(s => normalize(`${s.brandName} ${s.nameFull} ${s.nameShort}`).includes(q));
+      renderList(list);
+
+      const anyActive = Object.values(activeFilters).some(set => set.size > 0);
+      document.getElementById('filters-reset').classList.toggle('visible', anyActive);
     }
 
     (async () => {
@@ -200,22 +354,40 @@
         return;
       }
 
-      const searchInput = document.getElementById('search-input');
-      searchInput.addEventListener('input', () => {
-        const q = normalize(searchInput.value);
-        if (!q) { renderList(sauces); return; }
-        renderList(sauces.filter(s => normalize(`${s.brandName} ${s.nameFull} ${s.nameShort}`).includes(q)));
+      // Ingrédients détectés une seule fois par sauce, réutilisés pour le
+      // badge de carte ET pour le filtre "Ingrédient".
+      allSauces = sauces.map(s => ({ ...s, ingredientKeys: matchedIngredientKeys(s.ingredientsRaw) }));
+
+      // Valeurs disponibles par catégorie, triées, dérivées du catalogue réel.
+      const peppers = [...new Set(allSauces.flatMap(s => s.peppers || []))].sort();
+      const countries = [...new Set(allSauces.map(s => s.originCountry).filter(Boolean))].sort();
+      const flavors = [...new Set(allSauces.flatMap(s => s.flavorTags || []))].sort();
+      const ingredientKeysAll = [...new Set(allSauces.flatMap(s => s.ingredientKeys || []))].sort();
+
+      if (peppers.length || countries.length || flavors.length || ingredientKeysAll.length) {
+        document.getElementById('filters-wrap').style.display = '';
+        buildChipGroup('chips-pepper', 'pepper', peppers);
+        buildChipGroup('chips-country', 'country', countries, c => `${FLAGS[c] || ''} ${COUNTRY_NAMES[c] || c}`);
+        buildChipGroup('chips-flavor', 'flavor', flavors);
+        buildChipGroup('chips-ingredient', 'ingredient', ingredientKeysAll, k => k.charAt(0).toUpperCase() + k.slice(1));
+      }
+
+      document.getElementById('filters-reset').addEventListener('click', () => {
+        Object.values(activeFilters).forEach(set => set.clear());
+        document.querySelectorAll('.filter-chip.active').forEach(c => c.classList.remove('active'));
+        applyAll();
       });
+
+      const searchInput = document.getElementById('search-input');
+      searchInput.addEventListener('input', applyAll);
 
       // Préremplit depuis ?q=... (ex: lien "chercher manuellement" du scanner)
       const params = new URLSearchParams(location.search);
       const initialQuery = params.get('q');
       if (initialQuery) {
         searchInput.value = initialQuery;
-        searchInput.dispatchEvent(new Event('input'));
-      } else {
-        renderList(sauces);
       }
+      applyAll();
     })();
 
     if ('serviceWorker' in navigator) {

@@ -24,8 +24,10 @@ export async function fetchAllSauces() {
       .select(`
         name_full, name_short, origin_country, completion_level,
         shu_certified, shu_estimated, shu_community, heat_level_display,
-        score_avg,
-        brands ( name )
+        score_avg, ingredients_raw,
+        brands ( name ),
+        sauce_flavor_tags ( flavor_tags ( label_fr ) ),
+        sauce_pepper_types ( pepper_types ( name_fr ) )
       `)
       .eq("status", "published")
       .order("created_at", { ascending: false });
@@ -43,6 +45,9 @@ export async function fetchAllSauces() {
       heatLevelDisplay: row.heat_level_display,
       scoreAvg: row.score_avg,
       tier: row.completion_level,
+      ingredientsRaw: row.ingredients_raw || null,
+      flavorTags: (row.sauce_flavor_tags || []).map(t => t.flavor_tags?.label_fr).filter(Boolean),
+      peppers: (row.sauce_pepper_types || []).map(p => p.pepper_types?.name_fr).filter(Boolean),
     }));
   } catch (err) {
     console.warn("Ajimento: connexion Supabase impossible (liste des sauces).", err);

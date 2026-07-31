@@ -15,6 +15,10 @@
 -- deviner. Deux sauces de cette vague (Melinda's Ghost Pepper et
 -- Marie Sharp's Smokin' Marie) utilisent une vraie photo de bouteille
 -- prise par Brice comme image_bottle_url (voir images/sauces/).
+--
+-- Ce fichier est réexécutable sans risque (ON CONFLICT DO NOTHING
+-- partout) grâce aux contraintes d'unicité sur brands.name,
+-- pepper_types.name_fr et sauces.name_short.
 
 -- ---------------------------------------------------------
 -- Nouveaux types de piments (Habanero, Piment Scotch Bonnet,
@@ -24,7 +28,8 @@
 insert into pepper_types (name_fr, name_en, name_es, shu_min, shu_max, origin_region, family) values
   ('Piment Serrano', 'Serrano Pepper', 'Chile Serrano', 10000, 25000, 'Mexique (Puebla, Hidalgo)', 'capsicum_annuum'),
   ('Piment Jalapeño', 'Jalapeño Pepper', 'Chile Jalapeño', 2500, 8000, 'Mexique (Veracruz)', 'capsicum_annuum'),
-  ('Piment Carolina Reaper', 'Carolina Reaper', 'Chile Carolina Reaper', 1400000, 2200000, 'USA (Caroline du Sud)', 'capsicum_chinense');
+  ('Piment Carolina Reaper', 'Carolina Reaper', 'Chile Carolina Reaper', 1400000, 2200000, 'USA (Caroline du Sud)', 'capsicum_chinense')
+on conflict (name_fr) do nothing;
 
 -- ---------------------------------------------------------
 -- Nouvelles marques (Marie Sharp's existe déjà depuis seed_2.sql)
@@ -37,7 +42,8 @@ insert into brands (name, country_of_origin, founding_year, description, type) v
   ('Branford''s Originals', 'US', null, 'Petite marque de Hialeah, en Floride, construite autour du piment serrano plutôt que du habanero omniprésent ailleurs — une sauce fraîche, à la coriandre et au citron vert, pensée pour accompagner sans écraser.', 'artisanal'),
   ('El Tortuguero', 'PA', null, 'Sauce artisanale de Bocas del Toro, sur la côte caribéenne du Panama, à base d''ají chombo — la variante panaméenne du piment Scotch Bonnet.', 'artisanal'),
   ('Hoff & Pepper', 'US', null, 'Marque de Chattanooga, dans le Tennessee, qui construit ses recettes autour d''un mélange de piments plutôt que d''une seule variété — jalapeño, habanero et chipotle réunis dans la même bouteille.', 'artisanal'),
-  ('Renae', 'ES', null, 'Petite production artisanale andalouse, l''une des rares marques espagnoles du catalogue Ajimento. Travaille le jalapeño fumé et le Carolina Reaper en petites séries ("small batch").', 'artisanal');
+  ('Renae', 'ES', null, 'Petite production artisanale andalouse, l''une des rares marques espagnoles du catalogue Ajimento. Travaille le jalapeño fumé et le Carolina Reaper en petites séries ("small batch").', 'artisanal')
+on conflict (name) do nothing;
 
 -- ---------------------------------------------------------
 -- Sauces
@@ -136,7 +142,8 @@ insert into sauces (
   '{"fr": "Le Carolina Reaper ne représente que 8% de la recette — le reste est construit autour du jalapeño fumé, de l''ail et du citron. Une des rares sauces espagnoles du catalogue, produite en petites séries en Andalousie.", "en": "Carolina Reaper makes up only 8% of the recipe — the rest is built around smoked jalapeño, garlic and lemon. One of the few Spanish sauces in the catalog, produced in small batches in Andalusia.", "es": "El Carolina Reaper representa solo el 8% de la receta — el resto se construye alrededor del jalapeño ahumado, el ajo y el limón."}',
   'silver', 'editorial', 'published', null,
   null, null, null, null, null
-);
+)
+on conflict (name_short) do nothing;
 
 -- ---------------------------------------------------------
 -- Liens piments et sauces
@@ -144,35 +151,43 @@ insert into sauces (
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Melinda''s Ghost Pepper' and p.name_fr in ('Habanero', 'Piment Fantôme (Bhut Jolokia)');
+  where s.name_short = 'Melinda''s Ghost Pepper' and p.name_fr in ('Habanero', 'Piment Fantôme (Bhut Jolokia)')
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Marie Sharp''s Smokin''' and p.name_fr = 'Habanero';
+  where s.name_short = 'Marie Sharp''s Smokin''' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Congo Picante Original' and p.name_fr = 'Habanero';
+  where s.name_short = 'Congo Picante Original' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Royal Bourbon' and p.name_fr = 'Habanero';
+  where s.name_short = 'Royal Bourbon' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Branford''s Serrano' and p.name_fr = 'Piment Serrano';
+  where s.name_short = 'Branford''s Serrano' and p.name_fr = 'Piment Serrano'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'El Tortuguero Ají Chombo' and p.name_fr like 'Piment Scotch Bonnet%';
+  where s.name_short = 'El Tortuguero Ají Chombo' and p.name_fr like 'Piment Scotch Bonnet%'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Hoff''s Haus Sauce' and p.name_fr in ('Habanero', 'Piment Jalapeño');
+  where s.name_short = 'Hoff''s Haus Sauce' and p.name_fr in ('Habanero', 'Piment Jalapeño')
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Renae Small Batch' and p.name_fr in ('Piment Jalapeño', 'Piment Carolina Reaper');
+  where s.name_short = 'Renae Small Batch' and p.name_fr in ('Piment Jalapeño', 'Piment Carolina Reaper')
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 -- ---------------------------------------------------------
 -- Tags aromatiques
@@ -180,32 +195,40 @@ insert into sauce_pepper_types (sauce_id, pepper_type_id)
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Melinda''s Ghost Pepper' and f.slug in ('acidule', 'citronne', 'aille');
+  where s.name_short = 'Melinda''s Ghost Pepper' and f.slug in ('acidule', 'citronne', 'aille')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Marie Sharp''s Smokin''' and f.slug in ('fume', 'epice', 'poivre');
+  where s.name_short = 'Marie Sharp''s Smokin''' and f.slug in ('fume', 'epice', 'poivre')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Congo Picante Original' and f.slug in ('vinaigre', 'acidule', 'epice');
+  where s.name_short = 'Congo Picante Original' and f.slug in ('vinaigre', 'acidule', 'epice')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Royal Bourbon' and f.slug in ('sucre', 'caramel', 'fruite');
+  where s.name_short = 'Royal Bourbon' and f.slug in ('sucre', 'caramel', 'fruite')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Branford''s Serrano' and f.slug in ('herbace', 'citronne', 'acidule');
+  where s.name_short = 'Branford''s Serrano' and f.slug in ('herbace', 'citronne', 'acidule')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'El Tortuguero Ají Chombo' and f.slug in ('vinaigre', 'epice', 'acidule');
+  where s.name_short = 'El Tortuguero Ají Chombo' and f.slug in ('vinaigre', 'epice', 'acidule')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Hoff''s Haus Sauce' and f.slug in ('sucre', 'aille', 'epice');
+  where s.name_short = 'Hoff''s Haus Sauce' and f.slug in ('sucre', 'aille', 'epice')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Renae Small Batch' and f.slug in ('fume', 'acidule', 'aille');
+  where s.name_short = 'Renae Small Batch' and f.slug in ('fume', 'acidule', 'aille')
+on conflict (sauce_id, flavor_tag_id) do nothing;

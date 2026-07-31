@@ -34,6 +34,9 @@ create table brands (
   type brand_type not null default 'artisanal',
   created_at timestamptz not null default now()
 );
+-- Empêche les doublons de marque (indispensable pour que les scripts
+-- de seed puissent utiliser ON CONFLICT DO NOTHING sans risque).
+alter table brands add constraint brands_name_unique unique (name);
 
 -- ---------------------------------------------------------
 -- PEPPER_TYPES — les variétés de piments (référentiel commun)
@@ -49,6 +52,8 @@ create table pepper_types (
   origin_region text,
   family pepper_family not null default 'autre'
 );
+-- Même logique que pour brands : empêche les doublons de piment.
+alter table pepper_types add constraint pepper_types_name_fr_unique unique (name_fr);
 
 -- ---------------------------------------------------------
 -- FLAVOR_TAGS — liste FERMÉE d'environ 20 tags aromatiques
@@ -152,6 +157,10 @@ create index sauces_name_trgm_idx on sauces using gin (name_full gin_trgm_ops);
 -- ce point pour la performance à grande échelle.
 create index sauces_created_at_idx on sauces (created_at desc, id);
 
+-- Empêche les doublons de sauce (name_short sert de clé de lookup
+-- partout dans l'app et dans les scripts de seed).
+alter table sauces add constraint sauces_name_short_unique unique (name_short);
+
 -- ---------------------------------------------------------
 -- Relations plusieurs-à-plusieurs
 -- ---------------------------------------------------------
@@ -179,6 +188,8 @@ create table barcodes (
   type barcode_type not null default 'EAN13'
 );
 create index barcodes_code_idx on barcodes (code);
+-- Un même code-barres ne peut pas pointer vers deux produits différents.
+alter table barcodes add constraint barcodes_code_unique unique (code);
 
 -- ---------------------------------------------------------
 -- USER_COLLECTION — la "Cave" personnelle de chaque utilisateur

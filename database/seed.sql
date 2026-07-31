@@ -10,6 +10,10 @@
 -- marquées "estimées" ne sont pas certifiées en laboratoire —
 -- c'est normal et volontaire (voir docs/database.md, la logique
 -- des 3 types de valeur Scoville).
+--
+-- Ce fichier est réexécutable sans risque (ON CONFLICT DO NOTHING
+-- partout) grâce aux contraintes d'unicité sur brands.name,
+-- pepper_types.name_fr et sauces.name_short.
 
 -- ---------------------------------------------------------
 -- Types de piments utilisés par ces sauces
@@ -17,7 +21,8 @@
 
 insert into pepper_types (name_fr, name_en, name_es, shu_min, shu_max, origin_region, family) values
   ('Habanero', 'Habanero', 'Habanero', 100000, 350000, 'Bassin amazonien / Yucatán', 'capsicum_chinense'),
-  ('Piment Scotch Bonnet (Ají Chombo)', 'Scotch Bonnet (Aji Chombo)', 'Ají Chombo', 100000, 225000, 'Caraïbes / Panama', 'capsicum_chinense');
+  ('Piment Scotch Bonnet (Ají Chombo)', 'Scotch Bonnet (Aji Chombo)', 'Ají Chombo', 100000, 225000, 'Caraïbes / Panama', 'capsicum_chinense')
+on conflict (name_fr) do nothing;
 
 -- ---------------------------------------------------------
 -- Marques
@@ -27,7 +32,8 @@ insert into brands (name, country_of_origin, founding_year, description, type) v
   ('El Yucateco', 'MX', 1968, 'Fondée par Priamo Gamboa au Yucatán. Une des sauces habanero les plus vendues au monde, aujourd''hui distribuée internationalement.', 'international'),
   ('Really Buokas', 'PA', null, 'Marque panaméenne de la région de Bocas del Toro, ancrée dans l''héritage afro-antillais bocatoreño.', 'artisanal'),
   ('Doraz (Ají Chombo)', 'PA', null, 'Producteur panaméen historique de sauce à l''ají chombo (scotch bonnet), pilier de la cuisine antillaise locale.', 'artisanal'),
-  ('Mamita Hot Sauce', 'PA', 2016, 'Créée par Gwendolyn Stephenson à partir d''une recette familiale. Sauce caribéenne habanero et curcuma, positionnement clean label.', 'artisanal');
+  ('Mamita Hot Sauce', 'PA', 2016, 'Créée par Gwendolyn Stephenson à partir d''une recette familiale. Sauce caribéenne habanero et curcuma, positionnement clean label.', 'artisanal')
+on conflict (name) do nothing;
 
 -- ---------------------------------------------------------
 -- Sauces
@@ -41,7 +47,7 @@ insert into sauces (
 ) values (
   'Salsa Picante de Chile Habanero Rojo',
   'Habanero Rojo',
-  (select id from brands where name = 'El Yucateco'),
+  (select id from brands where name = 'El Yucateco' order by created_at asc limit 1),
   'MX',
   8500, -- estimation : les sources varient entre 5 790 et 11 600 SHU selon le lot
   4,
@@ -52,7 +58,7 @@ insert into sauces (
 ), (
   'Really Buokas Sauce Extra Forte',
   'Really Buokas',
-  (select id from brands where name = 'Really Buokas'),
+  (select id from brands where name = 'Really Buokas' order by created_at asc limit 1),
   'PA',
   null, -- pas de valeur SHU vérifiée trouvée — à compléter via contribution communautaire
   null,
@@ -63,7 +69,7 @@ insert into sauces (
 ), (
   'Salsa Picante de Ají Chombo',
   'Doraz Ají Chombo',
-  (select id from brands where name = 'Doraz (Ají Chombo)'),
+  (select id from brands where name = 'Doraz (Ají Chombo)' order by created_at asc limit 1),
   'PA',
   150000, -- estimation basée sur la plage typique du piment scotch bonnet
   7,
@@ -74,7 +80,7 @@ insert into sauces (
 ), (
   'Mamita Salsa Picante Estilo Caribeño Habanero y Cúrcuma',
   'Mamita Habanero Cúrcuma',
-  (select id from brands where name = 'Mamita Hot Sauce'),
+  (select id from brands where name = 'Mamita Hot Sauce' order by created_at asc limit 1),
   'PA',
   null, -- non trouvé — sauce positionnée sur le goût plus que sur l'extrême piquant
   null,
@@ -82,7 +88,8 @@ insert into sauces (
   '{"fr": "Née en 2016 d''une recette de famille sauvée par Gwendolyn Stephenson, Mamita mise sur le curcuma et l''habanero plutôt que sur la surenchère de piquant. Une sauce clean label, pensée pour parfumer plus que pour brûler.", "en": "Born in 2016 from a family recipe rescued by Gwendolyn Stephenson, Mamita bets on turmeric and habanero rather than extreme heat.", "es": "Nacida en 2016 de una receta familiar rescatada por Gwendolyn Stephenson."}',
   'silver', 'editorial', 'published',
   null, null, null, null, null -- pas encore de notes communautaires
-);
+)
+on conflict (name_short) do nothing;
 
 -- ---------------------------------------------------------
 -- Liens piments et sauces
@@ -90,15 +97,18 @@ insert into sauces (
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Habanero Rojo' and p.name_fr = 'Habanero';
+  where s.name_short = 'Habanero Rojo' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Doraz Ají Chombo' and p.name_fr like 'Piment Scotch Bonnet%';
+  where s.name_short = 'Doraz Ají Chombo' and p.name_fr like 'Piment Scotch Bonnet%'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Mamita Habanero Cúrcuma' and p.name_fr = 'Habanero';
+  where s.name_short = 'Mamita Habanero Cúrcuma' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 -- ---------------------------------------------------------
 -- Tags aromatiques
@@ -106,12 +116,15 @@ insert into sauce_pepper_types (sauce_id, pepper_type_id)
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Habanero Rojo' and f.slug in ('fruite', 'fume', 'vinaigre');
+  where s.name_short = 'Habanero Rojo' and f.slug in ('fruite', 'fume', 'vinaigre')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Doraz Ají Chombo' and f.slug in ('aille', 'vinaigre', 'epice');
+  where s.name_short = 'Doraz Ají Chombo' and f.slug in ('aille', 'vinaigre', 'epice')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Mamita Habanero Cúrcuma' and f.slug in ('fruite', 'sucre', 'tropical');
+  where s.name_short = 'Mamita Habanero Cúrcuma' and f.slug in ('fruite', 'sucre', 'tropical')
+on conflict (sauce_id, flavor_tag_id) do nothing;

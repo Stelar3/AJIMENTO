@@ -113,3 +113,82 @@ export async function fetchSauceByShortName(nameShort) {
     return null;
   }
 }
+
+// Retrouve une sauce à partir d'un code-barres scanné (EAN13/UPC-A/QR).
+// Renvoie le `name_short` de la sauce si trouvée et publiée, sinon `null`
+// (que ce soit parce que Supabase n'est pas configuré, que le code n'existe
+// pas en base, ou que la sauce liée n'est pas encore publiée).
+export async function fetchSauceByBarcode(code) {
+  const cfg = window.AJIMENTO_CONFIG;
+  if (!cfg || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+    console.log("Ajimento: Supabase non configuré — le scanner ne peut pas chercher de code-barres.");
+    return null;
+  }
+  try {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+    const supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+    const { data, error } = await supabase
+      .from("barcodes")
+      .select(`
+        code,
+        sauces ( name_short, status )
+      `)
+      .eq("code", code)
+      .maybeSingle();
+
+    if (error) {
+      console.warn("Ajimento: erreur Supabase (recherche code-barres).", error.message);
+      return null;
+    }
+    if (!data || !data.sauces || data.sauces.status !== "published") return null;
+    return data.sauces.name_short;
+  } catch (err) {
+    console.warn("Ajimento: connexion Supabase impossible (recherche code-barres).", err);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Recherche par texte d'étiquette (scanner)
+// ═══════════════════════════════════════════════════════════
+// Le scanner ne lit pas un code-barres : il photographie l'étiquette,
+// en extrait le texte par OCR (côté scanner.html), puis appelle
+// matchSaucesByLabelText() ci-dessous pour retrouver les sauces les
+// plus proches. Fait côté client (pas de fonction SQL à écrire) —
+// suffisant tant que le catalogue reste à quelques centaines de sauces ;
+// à revoir (recherche côté base, trigram déjà indexé dans schema.sql)
+// si la base grossit beaucoup au-delà.
+
+function normalizeText(s) {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+}
+
+function scoreLabelMatch(ocrTextNormalized, sauce) {
+  const candidate = normalizeText(`${sauce.brandName} ${sauce.nameFull} ${sauce.nameShort}`);
+  const words = candidate.split(/[^a-z0-9]+/).filter((w) => w.length >= 3);
+  let score = 0;
+  for (const w of words) {
+    if (ocrTextNormalized.includes(w)) score += w.length;
+  }
+  if (sauce.nameShort && ocrTextNormalized.includes(normalizeText(sauce.nameShort))) score += 25;
+  if (sauce.brandName && ocrTextNormalized.includes(normalizeText(sauce.brandName))) score += 20;
+  return score;
+}
+
+// Renvoie jusqu'à 5 sauces les plus proches du texte lu sur l'étiquette,
+// triées par pertinence décroissante. Renvoie [] si rien de probant.
+export async function matchSaucesByLabelText(ocrText) {
+  const all = await fetchAllSauces();
+  const norm = normalizeText(ocrText);
+  if (!norm.trim()) return [];
+  return all
+    .map((sauce) => ({ sauce, score: scoreLabelMatch(norm, sauce) }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+    .map((x) => x.sauce);
+}

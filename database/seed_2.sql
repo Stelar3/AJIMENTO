@@ -13,6 +13,10 @@
 -- certifiées labo, et certaines sauces n'ont volontairement pas
 -- de valeur SHU quand les sources publiques étaient trop floues
 -- ou contradictoires (mieux vaut "pas de donnée" qu'un chiffre inventé).
+--
+-- Ce fichier est réexécutable sans risque (ON CONFLICT DO NOTHING
+-- partout) grâce aux contraintes d'unicité sur brands.name,
+-- pepper_types.name_fr et sauces.name_short.
 
 -- ---------------------------------------------------------
 -- Nouveaux types de piments (ceux déjà en base : Habanero,
@@ -24,7 +28,8 @@ insert into pepper_types (name_fr, name_en, name_es, shu_min, shu_max, origin_re
   ('Piment Puya', 'Puya Pepper', 'Chile Puya', 5000, 10000, 'Mexique (Jalisco)', 'capsicum_annuum'),
   ('Piment Tabasco', 'Tabasco Pepper', 'Chile Tabasco', 30000, 50000, 'Louisiane (Avery Island)', 'capsicum_frutescens'),
   ('Piment Cayenne', 'Cayenne Pepper', 'Chile Cayena', 30000, 50000, 'Amérique centrale / États-Unis', 'capsicum_annuum'),
-  ('Piment Fantôme (Bhut Jolokia)', 'Ghost Pepper (Bhut Jolokia)', 'Chile Fantasma', 855000, 1041427, 'Inde (Assam)', 'capsicum_chinense');
+  ('Piment Fantôme (Bhut Jolokia)', 'Ghost Pepper (Bhut Jolokia)', 'Chile Fantasma', 855000, 1041427, 'Inde (Assam)', 'capsicum_chinense')
+on conflict (name_fr) do nothing;
 
 -- ---------------------------------------------------------
 -- Nouvelles marques
@@ -37,7 +42,8 @@ insert into brands (name, country_of_origin, founding_year, description, type) v
   ('Frank''s RedHot', 'US', null, 'Sauce au piment cayenne popularisée par son rôle dans l''invention des ailes de poulet "Buffalo" à Buffalo, New York. Un classique doux mais incontournable de la cuisine américaine.', 'international'),
   ('Marie Sharp''s', 'BZ', null, 'Sauces belizéennes à base de habanero rouge cultivé localement, carotte, citron vert et ail. Une référence pour la cuisine caribéenne d''Amérique centrale, peu représentée dans les catalogues existants.', 'artisanal'),
   ('Ajibasco', 'CO', null, 'Marque colombienne de salsa de ají picante à base de piment habanero, dans la tradition des ajís qui accompagnent les tables colombiennes.', 'artisanal'),
-  ('Blair''s', 'US', null, 'Marque américaine spécialisée dans les sauces extrêmes ("Death Sauces"), fondée par Blair Lazar. Référence culte chez les amateurs de piquant extrême.', 'industrial');
+  ('Blair''s', 'US', null, 'Marque américaine spécialisée dans les sauces extrêmes ("Death Sauces"), fondée par Blair Lazar. Référence culte chez les amateurs de piquant extrême.', 'industrial')
+on conflict (name) do nothing;
 
 -- ---------------------------------------------------------
 -- Sauces
@@ -136,7 +142,8 @@ insert into sauces (
   '{"fr": "La version sombre et fumée du habanero d''El Yucateco. Moins piquante que la Habanero Rojo classique de la même marque, mais avec une profondeur que le fumage vient chercher — la preuve qu''une même maison peut raconter deux histoires très différentes.", "en": "El Yucateco''s dark, smoky take on habanero. Milder than the brand''s classic Habanero Rojo, but with a depth the smoking brings out — proof that one house can tell two very different stories.", "es": "La versión oscura y ahumada del habanero de El Yucateco."}',
   'silver', 'editorial', 'published',
   null, null, null, null, null
-);
+)
+on conflict (name_short) do nothing;
 
 -- ---------------------------------------------------------
 -- Liens piments et sauces
@@ -144,35 +151,43 @@ insert into sauces (
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Cholula Original' and p.name_fr = 'Piment de Árbol';
+  where s.name_short = 'Cholula Original' and p.name_fr = 'Piment de Árbol'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Valentina' and p.name_fr = 'Piment Puya';
+  where s.name_short = 'Valentina' and p.name_fr = 'Piment Puya'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Tabasco Original' and p.name_fr = 'Piment Tabasco';
+  where s.name_short = 'Tabasco Original' and p.name_fr = 'Piment Tabasco'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Frank''s RedHot' and p.name_fr = 'Piment Cayenne';
+  where s.name_short = 'Frank''s RedHot' and p.name_fr = 'Piment Cayenne'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Marie Sharp''s Hot' and p.name_fr = 'Habanero';
+  where s.name_short = 'Marie Sharp''s Hot' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Ajibasco' and p.name_fr = 'Habanero';
+  where s.name_short = 'Ajibasco' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'Blair''s Ultra Death' and p.name_fr = 'Piment Fantôme (Bhut Jolokia)';
+  where s.name_short = 'Blair''s Ultra Death' and p.name_fr = 'Piment Fantôme (Bhut Jolokia)'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 insert into sauce_pepper_types (sauce_id, pepper_type_id)
   select s.id, p.id from sauces s, pepper_types p
-  where s.name_short = 'El Yucateco Black Label' and p.name_fr = 'Habanero';
+  where s.name_short = 'El Yucateco Black Label' and p.name_fr = 'Habanero'
+on conflict (sauce_id, pepper_type_id) do nothing;
 
 -- ---------------------------------------------------------
 -- Tags aromatiques
@@ -180,32 +195,40 @@ insert into sauce_pepper_types (sauce_id, pepper_type_id)
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Cholula Original' and f.slug in ('acidule', 'epice', 'terreux');
+  where s.name_short = 'Cholula Original' and f.slug in ('acidule', 'epice', 'terreux')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Valentina' and f.slug in ('acidule', 'vinaigre', 'epice');
+  where s.name_short = 'Valentina' and f.slug in ('acidule', 'vinaigre', 'epice')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Tabasco Original' and f.slug in ('vinaigre', 'acidule', 'poivre');
+  where s.name_short = 'Tabasco Original' and f.slug in ('vinaigre', 'acidule', 'poivre')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Frank''s RedHot' and f.slug in ('vinaigre', 'aille', 'salin');
+  where s.name_short = 'Frank''s RedHot' and f.slug in ('vinaigre', 'aille', 'salin')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Marie Sharp''s Hot' and f.slug in ('tropical', 'acidule', 'aille');
+  where s.name_short = 'Marie Sharp''s Hot' and f.slug in ('tropical', 'acidule', 'aille')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Ajibasco' and f.slug in ('aille', 'epice', 'acidule');
+  where s.name_short = 'Ajibasco' and f.slug in ('aille', 'epice', 'acidule')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'Blair''s Ultra Death' and f.slug in ('fume', 'terreux', 'poivre');
+  where s.name_short = 'Blair''s Ultra Death' and f.slug in ('fume', 'terreux', 'poivre')
+on conflict (sauce_id, flavor_tag_id) do nothing;
 
 insert into sauce_flavor_tags (sauce_id, flavor_tag_id)
   select s.id, f.id from sauces s, flavor_tags f
-  where s.name_short = 'El Yucateco Black Label' and f.slug in ('fume', 'terreux', 'umami');
+  where s.name_short = 'El Yucateco Black Label' and f.slug in ('fume', 'terreux', 'umami')
+on conflict (sauce_id, flavor_tag_id) do nothing;

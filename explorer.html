@@ -33,6 +33,20 @@
       color: var(--muted);
     }
 
+    .search-wrap { padding: 4px 20px 8px; max-width: 640px; margin: 0 auto; }
+    .search-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus { outline: none; border-color: var(--fire); }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -118,6 +132,10 @@
     <p>Le catalogue, une sauce à la fois</p>
   </header>
 
+  <div class="search-wrap">
+    <input type="search" id="search-input" class="search-input" placeholder="Chercher une sauce ou une marque…" />
+  </div>
+
   <div id="content" class="loading">Chargement…</div>
 
   <nav class="bottom-nav">
@@ -155,6 +173,21 @@
       `;
     }
 
+    function normalize(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
+    function renderList(list) {
+      const el = document.getElementById('content');
+      if (!list.length) {
+        el.className = 'empty-state';
+        el.innerHTML = `Aucune sauce ne correspond à cette recherche. <a href="explorer.html">Voir tout le catalogue</a>`;
+        return;
+      }
+      el.className = 'grid';
+      el.innerHTML = list.map(cardHTML).join('');
+    }
+
     (async () => {
       const sauces = await fetchAllSauces();
       const el = document.getElementById('content');
@@ -166,8 +199,23 @@
         `;
         return;
       }
-      el.className = 'grid';
-      el.innerHTML = sauces.map(cardHTML).join('');
+
+      const searchInput = document.getElementById('search-input');
+      searchInput.addEventListener('input', () => {
+        const q = normalize(searchInput.value);
+        if (!q) { renderList(sauces); return; }
+        renderList(sauces.filter(s => normalize(`${s.brandName} ${s.nameFull} ${s.nameShort}`).includes(q)));
+      });
+
+      // Préremplit depuis ?q=... (ex: lien "chercher manuellement" du scanner)
+      const params = new URLSearchParams(location.search);
+      const initialQuery = params.get('q');
+      if (initialQuery) {
+        searchInput.value = initialQuery;
+        searchInput.dispatchEvent(new Event('input'));
+      } else {
+        renderList(sauces);
+      }
     })();
 
     if ('serviceWorker' in navigator) {

@@ -71,7 +71,7 @@ export async function fetchSauceByShortName(nameShort) {
     const { data, error } = await supabase
       .from("sauces")
       .select(`
-        name_full, name_short, origin_country,
+        id, name_full, name_short, origin_country,
         shu_certified, shu_estimated, shu_community, heat_level_display,
         story, completion_level, image_bottle_url, ingredients_raw,
         heat_avg, flavor_avg, balance_avg, finish_avg, score_avg,
@@ -92,6 +92,7 @@ export async function fetchSauceByShortName(nameShort) {
     // On simplifie la forme des données pour que la page n'ait pas
     // à connaître la structure exacte de la base.
     return {
+      id: data.id,
       nameFull: data.name_full,
       nameShort: data.name_short,
       brandName: data.brands?.name ?? "",

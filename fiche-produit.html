@@ -314,6 +314,29 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
+    /* Les CTA sont maintenant de vrais <button>, pas des liens — reset des styles par défaut */
+    button.cta-btn { font-family: inherit; cursor: pointer; }
+    .cta-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .avis-status {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      color: var(--gold);
+      margin-top: 12px;
+      min-height: 1.2em;
+    }
+    .avis-status.error { color: var(--fire); }
+
+    .quick-rate {
+      display: none;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .quick-rate.visible { display: flex; }
+    .quick-rate .drop-pick { width: 26px; height: 26px; cursor: pointer; color: rgba(255,255,255,.25); }
+    .quick-rate .drop-pick:hover, .quick-rate .drop-pick.hovered { color: var(--fire); }
+    .quick-rate .drop-pick svg { width: 100%; height: 100%; }
 
     .disclaimer {
       text-align: center;
@@ -437,11 +460,19 @@
     </div>
 
     <div class="avis-section">
-      <p>Les avis et notes détaillées arrivent avec les comptes Ajimento. En attendant, dis-nous si tu l'as déjà goûtée.</p>
+      <p id="avis-intro">Ajoute cette sauce à ta Cave ou note-la si tu l'as déjà goûtée.</p>
       <div class="cta-row">
-        <a class="cta-btn primary" href="profil.html"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0 1 14 0V20"/><path d="M5 20H19"/><path d="M9 20V14"/><path d="M15 20V14"/></svg> Ajouter à ma Cave</a>
-        <a class="cta-btn secondary" href="profil.html"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z"/></svg> Noter cette sauce</a>
+        <button class="cta-btn primary" id="cta-add-cave"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0 1 14 0V20"/><path d="M5 20H19"/><path d="M9 20V14"/><path d="M15 20V14"/></svg> Ajouter à ma Cave</button>
+        <button class="cta-btn secondary" id="cta-rate"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z"/></svg> Noter cette sauce</button>
       </div>
+      <div class="quick-rate" id="quick-rate">
+        <span class="drop-pick" data-val="1"><svg viewBox="0 0 64 64"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="currentColor"/></svg></span>
+        <span class="drop-pick" data-val="2"><svg viewBox="0 0 64 64"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="currentColor"/></svg></span>
+        <span class="drop-pick" data-val="3"><svg viewBox="0 0 64 64"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="currentColor"/></svg></span>
+        <span class="drop-pick" data-val="4"><svg viewBox="0 0 64 64"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="currentColor"/></svg></span>
+        <span class="drop-pick" data-val="5"><svg viewBox="0 0 64 64"><path d="M32 6C40 20 50 30 50 42C50 52 42 58 32 58C22 58 14 52 14 42C14 30 24 20 32 6Z" fill="currentColor"/></svg></span>
+      </div>
+      <div class="avis-status" id="avis-status"></div>
     </div>
 
     <div class="disclaimer" id="disclaimer">Fiche de démonstration — reprend une donnée du kit de contenu Instagram existant</div>
@@ -451,6 +482,7 @@
   <script type="module">
     import { fetchSauceByShortName } from './sauces.js';
     import { ING_ICONS, pickIngredients } from './ingredients.js';
+    import { getCurrentUser, upsertCollectionEntry } from './auth.js';
 
     // --- Les paliers de piquant, même logique que le kit Instagram ---
     // (Doux / Relevé / Fort / Intense / Extrême), chacun avec sa propre plage SHU,
@@ -619,11 +651,63 @@
         : 'Donnée réelle — base Ajimento (Supabase)';
     }
 
+    // --- CTA "Ajouter à ma Cave" / "Noter cette sauce" : écrivent
+    // vraiment dans user_collection (comptes Ajimento réels) ---
+    let currentSauce = null;
+
+    function setAvisStatus(msg, isError) {
+      const el = document.getElementById('avis-status');
+      el.textContent = msg;
+      el.className = 'avis-status' + (isError ? ' error' : '');
+    }
+
+    document.getElementById('cta-add-cave').addEventListener('click', async () => {
+      if (!currentSauce || !currentSauce.id) {
+        setAvisStatus("Cette fiche est une démonstration, pas encore reliée à la base.", true);
+        return;
+      }
+      const user = await getCurrentUser();
+      if (!user) {
+        location.href = 'profil.html';
+        return;
+      }
+      const { error } = await upsertCollectionEntry(user.id, currentSauce.id, { status: 'collection' });
+      setAvisStatus(error ? "Erreur : " + error : 'Ajoutée à ta Cave.', !!error);
+    });
+
+    document.getElementById('cta-rate').addEventListener('click', async () => {
+      if (!currentSauce || !currentSauce.id) {
+        setAvisStatus("Cette fiche est une démonstration, pas encore reliée à la base.", true);
+        return;
+      }
+      const user = await getCurrentUser();
+      if (!user) {
+        location.href = 'profil.html';
+        return;
+      }
+      document.getElementById('quick-rate').classList.add('visible');
+    });
+
+    document.querySelectorAll('.drop-pick').forEach((drop, idx) => {
+      drop.addEventListener('mouseenter', () => {
+        document.querySelectorAll('.drop-pick').forEach((d, i) => d.classList.toggle('hovered', i <= idx));
+      });
+      drop.addEventListener('click', async () => {
+        const user = await getCurrentUser();
+        if (!user || !currentSauce?.id) return;
+        const rating = parseInt(drop.dataset.val, 10);
+        const { error } = await upsertCollectionEntry(user.id, currentSauce.id, { status: 'tasted', rating });
+        setAvisStatus(error ? "Erreur : " + error : `Notée ${rating}/5 et ajoutée à tes dégustations.`, !!error);
+        if (!error) document.getElementById('quick-rate').classList.remove('visible');
+      });
+    });
+
     (async () => {
       const params = new URLSearchParams(location.search);
       const sauceParam = params.get('sauce') || 'Habanero Rojo';
       const liveData = await fetchSauceByShortName(sauceParam);
-      renderSauce(liveData || demoData);
+      currentSauce = liveData || demoData;
+      renderSauce(currentSauce);
     })();
 
     if ('serviceWorker' in navigator) {

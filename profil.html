@@ -14,71 +14,270 @@
   <link rel="stylesheet" href="styles.css" />
 
   <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 32px;
-    }
-    .icon-big {
-      display: block;
-      width: 48px;
-      height: 48px;
-      margin: 0 auto 20px;
-      opacity: 0.5;
-      color: var(--gold);
-    }
-    h1 {
+    body { min-height: 100vh; padding-bottom: 90px; }
+
+    header.page-header { padding: 24px 20px 12px; text-align: center; }
+    header.page-header h1 {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 700;
       font-size: 2rem;
-      margin-bottom: 10px;
+      margin-bottom: 4px;
     }
-    p {
-      font-family: 'Outfit', sans-serif;
+    header.page-header p {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
       font-size: 0.9rem;
       color: var(--muted);
-      line-height: 1.7;
-      max-width: 320px;
-      margin-bottom: 28px;
     }
-    .cta {
-      display: inline-block;
-      color: var(--fire);
+
+    .wrap { max-width: 480px; margin: 0 auto; padding: 8px 20px 0; }
+
+    /* ---- État déconnecté : lien magique ---- */
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      text-align: center;
+      margin-top: 24px;
+    }
+    .auth-card .icon-big {
+      width: 40px; height: 40px;
+      margin: 0 auto 16px;
+      color: var(--gold);
+      opacity: 0.8;
+    }
+    .auth-card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+    .auth-card p {
       font-family: 'Outfit', sans-serif;
       font-size: 0.85rem;
-      text-decoration: none;
-      border-bottom: 1px solid var(--fire);
-      padding-bottom: 2px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
     }
-    .soon {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--gold);
-      border: 1px solid var(--gold);
+    .auth-form { display: flex; flex-direction: column; gap: 10px; }
+    .auth-form input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
       border-radius: 999px;
-      padding: 4px 12px;
-      margin-bottom: 18px;
-      display: inline-block;
+      padding: 11px 18px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text);
+      text-align: center;
+    }
+    .auth-form input:focus { outline: none; border-color: var(--fire); }
+    .btn-primary {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      background: linear-gradient(120deg, var(--fire), var(--red));
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 11px 20px;
+      cursor: pointer;
+    }
+    .btn-primary:disabled { opacity: 0.5; cursor: default; }
+    .auth-status {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      color: var(--gold);
+      margin-top: 4px;
+      min-height: 1.2em;
+    }
+    .auth-status.error { color: var(--fire); }
+
+    /* ---- État connecté ---- */
+    .account-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      margin-bottom: 24px;
+    }
+    .account-email {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .account-email .label {
+      display: block;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .signout-link {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: underline;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .section-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ---- Stats ---- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .stat-card .num {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-card .lbl {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ---- Trophées ---- */
+    .trophies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .trophy {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 8px;
+      text-align: center;
+      position: relative;
+    }
+    .trophy .badge { width: 26px; height: 26px; margin: 0 auto 8px; color: var(--muted); opacity: 0.4; }
+    .trophy.unlocked { border-color: rgba(184,150,62,.4); }
+    .trophy.unlocked .badge { color: var(--gold); opacity: 1; }
+    .trophy .t-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 0.7rem;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .trophy.unlocked .t-title { color: var(--gold); }
+    .trophy .t-desc {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.62rem;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.3;
+    }
+    .trophy .lock {
+      position: absolute; top: 8px; right: 8px;
+      width: 12px; height: 12px;
+      color: var(--dim);
+    }
+
+    /* ---- Préférences ---- */
+    .prefs-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .field input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .field input[type="text"]:focus { outline: none; border-color: var(--fire); }
+    .heat-row { display: flex; align-items: center; gap: 12px; }
+    .heat-row input[type="range"] { flex: 1; accent-color: var(--fire); }
+    .heat-row .heat-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      color: var(--fire);
+      width: 24px;
+      text-align: center;
+    }
+    .flavor-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .flavor-chip {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .flavor-chip.active { background: rgba(212,96,58,.16); border-color: var(--fire); color: var(--fire); }
+    .save-row { margin-top: 18px; text-align: center; }
+    .prefs-status {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      color: var(--gold);
+      margin-top: 8px;
+      min-height: 1.2em;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 24px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
     }
   </style>
 </head>
 <body class="has-bottom-nav">
 
-  <div class="fade-in">
-    <svg class="icon-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/></svg>
-    <span class="soon">Bientôt</span>
+  <header class="page-header fade-in">
     <h1>Profil</h1>
-    <p>
-      La création de compte arrive prochainement : tu pourras suivre
-      tes sauces goûtées, tes notes et tes préférences de piquant.
-    </p>
-    <a class="cta" href="explorer.html">Explorer le catalogue en attendant →</a>
+    <p>Ta collection, tes goûts, tes trophées</p>
+  </header>
+
+  <div class="wrap">
+    <div id="content" class="loading">Chargement…</div>
   </div>
 
   <nav class="bottom-nav">
@@ -89,7 +288,152 @@
     <a href="profil.html" class="active"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/></svg></span>Profil</a>
   </nav>
 
-  <script>
+  <script src="config.js"></script>
+  <script type="module">
+    import { sendMagicLink, signOut, getCurrentUser, onAuthChange, fetchPreferences, savePreferences, fetchUserStats, computeTrophies, FLAVOR_TAGS } from './auth.js';
+
+    const TROPHY_BADGE = '<svg class="badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5.5"/><path d="M8.5 12.5 L6.5 21 L12 18 L17.5 21 L15.5 12.5"/></svg>';
+    const LOCK_ICON = '<svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+
+    function renderLoggedOut() {
+      const el = document.getElementById('content');
+      el.className = '';
+      el.innerHTML = `
+        <div class="auth-card fade-in">
+          <svg class="icon-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/></svg>
+          <h2>Connecte-toi</h2>
+          <p>Un lien de connexion t'est envoyé par e-mail, sans mot de passe à retenir. Clique dessus depuis cet appareil pour revenir ici connecté.</p>
+          <form class="auth-form" id="auth-form">
+            <input type="email" id="auth-email" placeholder="ton@email.com" required />
+            <button type="submit" class="btn-primary" id="auth-submit">Envoyer le lien magique</button>
+          </form>
+          <div class="auth-status" id="auth-status"></div>
+        </div>
+      `;
+      document.getElementById('auth-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value.trim();
+        const btn = document.getElementById('auth-submit');
+        const status = document.getElementById('auth-status');
+        if (!email) return;
+        btn.disabled = true;
+        status.className = 'auth-status';
+        status.textContent = 'Envoi en cours…';
+        const { error } = await sendMagicLink(email);
+        if (error) {
+          status.className = 'auth-status error';
+          status.textContent = "Impossible d'envoyer le lien : " + error;
+          btn.disabled = false;
+        } else {
+          status.textContent = 'Lien envoyé ! Vérifie ta boîte mail (et les spams).';
+        }
+      });
+    }
+
+    function fmtSHU(shu) {
+      if (shu == null) return '—';
+      if (shu >= 1e6) return (shu / 1e6).toFixed(1) + 'M';
+      if (shu >= 1e3) return Math.round(shu / 1e3) + 'k';
+      return String(shu);
+    }
+
+    async function renderLoggedIn(user) {
+      const el = document.getElementById('content');
+      el.className = '';
+      const [stats, prefs] = await Promise.all([fetchUserStats(user.id), fetchPreferences(user.id)]);
+      const trophies = computeTrophies(stats);
+      const unlockedCount = trophies.filter(t => t.unlocked).length;
+      const favoriteTags = new Set(prefs?.favorite_flavor_tags || []);
+
+      el.innerHTML = `
+        <div class="account-row fade-in">
+          <span class="account-email"><span class="label">Connecté</span>${user.email}</span>
+          <button class="signout-link" id="signout-btn">Se déconnecter</button>
+        </div>
+
+        <div class="section-label">Statistiques</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="num">${stats.tastedCount}</div><div class="lbl">Sauces goûtées</div></div>
+          <div class="stat-card"><div class="num">${stats.countriesCount}</div><div class="lbl">Pays explorés</div></div>
+          <div class="stat-card"><div class="num">${fmtSHU(stats.maxShu)}</div><div class="lbl">Piquant max atteint (SHU)</div></div>
+          <div class="stat-card"><div class="num">${stats.ratingsCount}</div><div class="lbl">Notes laissées</div></div>
+        </div>
+
+        <div class="section-label">Trophées (${unlockedCount} / ${trophies.length})</div>
+        <div class="trophies-grid">
+          ${trophies.map(t => `
+            <div class="trophy${t.unlocked ? ' unlocked' : ''}">
+              ${!t.unlocked ? LOCK_ICON : ''}
+              ${TROPHY_BADGE}
+              <div class="t-title">${t.title}</div>
+              <div class="t-desc">${t.desc}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="section-label">Préférences de goût</div>
+        <div class="prefs-card">
+          <div class="field">
+            <label for="pref-name">Nom affiché</label>
+            <input type="text" id="pref-name" value="${(prefs?.display_name || '').replace(/"/g, '&quot;')}" placeholder="Comment on t'appelle ?" />
+          </div>
+          <div class="field">
+            <label for="pref-heat">Tolérance au piquant : <span class="heat-val" id="heat-val">${prefs?.heat_tolerance ?? 5}</span> / 10</label>
+            <div class="heat-row">
+              <input type="range" id="pref-heat" min="1" max="10" value="${prefs?.heat_tolerance ?? 5}" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Saveurs préférées</label>
+            <div class="flavor-chips" id="flavor-chips">
+              ${FLAVOR_TAGS.map(([slug, label]) => `<span class="flavor-chip${favoriteTags.has(slug) ? ' active' : ''}" data-slug="${slug}">${label}</span>`).join('')}
+            </div>
+          </div>
+          <div class="save-row">
+            <button class="btn-primary" id="save-prefs">Enregistrer</button>
+            <div class="prefs-status" id="prefs-status"></div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('signout-btn').addEventListener('click', async () => {
+        await signOut();
+        location.reload();
+      });
+
+      const heatInput = document.getElementById('pref-heat');
+      heatInput.addEventListener('input', () => {
+        document.getElementById('heat-val').textContent = heatInput.value;
+      });
+
+      document.querySelectorAll('.flavor-chip').forEach(chip => {
+        chip.addEventListener('click', () => chip.classList.toggle('active'));
+      });
+
+      document.getElementById('save-prefs').addEventListener('click', async () => {
+        const status = document.getElementById('prefs-status');
+        status.textContent = 'Enregistrement…';
+        const displayName = document.getElementById('pref-name').value.trim() || null;
+        const heatTolerance = parseInt(document.getElementById('pref-heat').value, 10);
+        const favoriteFlavorTags = [...document.querySelectorAll('.flavor-chip.active')].map(c => c.dataset.slug);
+        const { error } = await savePreferences(user.id, { displayName, heatTolerance, favoriteFlavorTags });
+        status.textContent = error ? "Erreur : " + error : 'Préférences enregistrées.';
+      });
+    }
+
+    async function render() {
+      const user = await getCurrentUser();
+      if (user) renderLoggedIn(user);
+      else renderLoggedOut();
+    }
+
+    render();
+    onAuthChange((user) => {
+      // Re-render dès qu'un lien magique est cliqué et que la session s'active,
+      // ou dès qu'on se déconnecte depuis un autre onglet.
+      render();
+    });
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js').catch(() => {});
     }

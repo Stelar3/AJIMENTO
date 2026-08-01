@@ -201,6 +201,7 @@
   <script src="config.js"></script>
   <script type="module">
     import { fetchAllSauces } from './sauces.js';
+    import { getCurrentUser, fetchUserStats } from './auth.js';
 
     const FLAGS = { MX: '🇲🇽', PA: '🇵🇦', FR: '🇫🇷', US: '🇺🇸', CO: '🇨🇴', ES: '🇪🇸', BZ: '🇧🇿' };
 
@@ -215,10 +216,12 @@
       const sauces = await fetchAllSauces();
       const statsRow = document.getElementById('stats-row');
 
-      // Dégustations : nécessite les comptes utilisateurs (pas encore construits),
-      // donc pas de vrai chiffre à afficher pour l'instant — on l'annonce honnêtement
-      // plutôt que d'inventer un nombre.
-      const degustationsStat = `<div class="stat"><span class="n">—</span><span class="l">dégustations</span></div>`;
+      // Dégustations : maintenant que les comptes existent, on affiche le vrai
+      // chiffre personnel si l'utilisateur est connecté — sinon on l'annonce
+      // honnêtement avec un tiret plutôt que d'inventer un nombre.
+      const user = await getCurrentUser();
+      const tastedCount = user ? (await fetchUserStats(user.id)).tastedCount : null;
+      const degustationsStat = `<div class="stat"><span class="n">${tastedCount ?? '—'}</span><span class="l">dégustations</span></div>`;
 
       if (!sauces.length) {
         // Pas encore de données réelles : on garde une accroche simple, sans faux chiffres

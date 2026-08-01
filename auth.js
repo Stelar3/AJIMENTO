@@ -109,6 +109,43 @@ export async function upsertCollectionEntry(userId, sauceId, { status, rating, h
   return { error: error ? error.message : null };
 }
 
+// Renvoie toute la collection de l'utilisateur (Cave), triée du plus
+// récemment ajouté au plus ancien, avec les infos de sauce nécessaires
+// à l'affichage (nom, marque, image, SHU) déjà aplaties.
+export async function fetchUserCollection(userId) {
+  const supabase = await getClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('user_collection')
+    .select(`
+      status, rating, notes, added_at,
+      sauces ( id, name_full, name_short, origin_country, image_bottle_url, shu_certified, shu_estimated, shu_community, brands ( name ) )
+    `)
+    .eq('user_id', userId)
+    .order('added_at', { ascending: false });
+  if (error) { console.warn('Ajimento: erreur lecture de la Cave.', error.message); return []; }
+  return (data || []).filter(row => row.sauces).map(row => ({
+    status: row.status,
+    rating: row.rating,
+    notes: row.notes,
+    addedAt: row.added_at,
+    sauceId: row.sauces.id,
+    nameFull: row.sauces.name_full,
+    nameShort: row.sauces.name_short,
+    brandName: row.sauces.brands?.name ?? '',
+    originCountry: row.sauces.origin_country,
+    imageBottleUrl: row.sauces.image_bottle_url,
+    shu: row.sauces.shu_certified ?? row.sauces.shu_estimated ?? row.sauces.shu_community ?? null,
+  }));
+}
+
+export async function removeCollectionEntry(userId, sauceId) {
+  const supabase = await getClient();
+  if (!supabase) return { error: 'Supabase non configuré.' };
+  const { error } = await supabase.from('user_collection').delete().eq('user_id', userId).eq('sauce_id', sauceId);
+  return { error: error ? error.message : null };
+}
+
 // ---------------------------------------------------------
 // Statistiques de dégustation (pour le tableau de bord + trophées)
 // ---------------------------------------------------------
